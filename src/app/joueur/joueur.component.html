@@ -1,0 +1,20 @@
+@if (joueurs$ | async; as joueurs) {
+<div class="liste">
+  @for (joueur of joueurs; track joueur.id) {
+  <mat-card class="carte">
+    <div class="photo">
+      <span>Photo à venir</span>
+    </div>
+
+    <div class="infos">
+      <h2>{{ joueur.prenom }} {{ joueur.nom }}</h2>
+      <p><strong>Club :</strong> {{ joueur.club.nom }}</p>
+      <p><strong>Poste :</strong> {{ libellePoste(joueur.poste) }}</p>
+      <p><strong>Nationalité :</strong> {{ joueur.nationalite }}</p>
+      <p><strong>Taille :</strong> {{ joueur.taille }} cm</p>
+      <p><strong>Date de naissance :</strong> {{ joueur.anniversaire | date: "dd/MM/yyyy" }}</p>
+    </div>
+  </mat-card>
+  }
+</div>
+}

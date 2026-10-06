@@ -1,0 +1,29 @@
+.liste {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 24px;
+}
+
+.carte {
+  display: flex;
+  flex-direction: row;
+  gap: 24px;
+  padding: 16px;
+}
+
+.photo {
+  width: 180px;
+  height: 220px;
+  flex-shrink: 0;
+  border: 2px dashed #999;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #999;
+}
+
+.infos h2 {
+  margin-top: 0;
+}
