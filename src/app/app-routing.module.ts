@@ -9,6 +9,7 @@ import { MajorsComponent } from "majors/majors.component"
 import { MajorsResolver } from "majors/majors.resolver"
 import { MajorStudentsResolver } from "majors/major-students/major-students.resolver"
 import { MajorStudentsComponent } from "majors/major-students/major-students.component"
+import { JoueurComponent } from "joueur/joueur.component"
 
 const routes: Routes = [
   { path: "", component: HomeComponent },
@@ -33,13 +34,16 @@ const routes: Routes = [
       majors: MajorsResolver,
     },
   },
+  { path: "joueurs", 
+    component: JoueurComponent 
+  },
   {
     path: "etudiants-filiere/:id",
     component: MajorStudentsComponent,
     resolve: {
       studentsFromMajor: MajorStudentsResolver,
     },
-  },
+  }
 ]
 
 @NgModule({
