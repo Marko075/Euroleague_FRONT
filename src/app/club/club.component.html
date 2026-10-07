@@ -1,1 +1,42 @@
-<p>club works!</p>
+@if (clubs$ | async; as clubs) {
+  <div class="liste">
+
+    @for (club of clubs; track club.id) {
+      <mat-card class="carte">
+
+        <div class="logo">
+          <img
+            [src]="getLogoClub(club.nom)"
+            [alt]="'Logo ' + club.nom"
+          >
+        </div>
+
+        <div class="infos">
+          <h2>{{ club.nom }}</h2>
+
+          <p>
+            <strong>Ville :</strong>
+            {{ club.ville }}
+          </p>
+
+          <p>
+            <strong>Pays :</strong>
+            {{ club.pays }}
+          </p>
+
+          <p>
+            <strong>Stade :</strong>
+            {{ club.stade }}
+          </p>
+
+          <p>
+            <strong>Coach :</strong>
+            {{ club.coach }}
+          </p>
+        </div>
+
+      </mat-card>
+    }
+
+  </div>
+}
