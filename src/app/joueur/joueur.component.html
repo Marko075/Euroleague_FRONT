@@ -3,9 +3,11 @@
   @for (joueur of joueurs; track joueur.id) {
   <mat-card class="carte">
     <div class="photo">
-      <span>Photo à venir</span>
+      <img
+        [src]="'assets/joueurs/' + joueur.nom.toLowerCase() + '_' + joueur.prenom.toLowerCase() + '.png'"
+        [alt]="joueur.prenom + ' ' + joueur.nom"
+      >
     </div>
-
     <div class="infos">
       <h2>{{ joueur.prenom }} {{ joueur.nom }}</h2>
       <p><strong>Club :</strong> {{ joueur.club.nom }}</p>
