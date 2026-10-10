@@ -1,0 +1,109 @@
+<div class="page">
+  <h1>Statistiques des derniers matchs</h1>
+
+  @if (chargement) {
+    <p class="message">Chargement des matchs...</p>
+  }
+
+  @if (erreur) {
+    <p class="message erreur">Impossible de charger les matchs. L'API est-elle lancée ?</p>
+  }
+
+  @if (!chargement && !erreur) {
+    @for (match of matchs; track match.id) {
+      <mat-card class="carte-match">
+
+        <!-- EN-TÊTE : score, date, MVP -->
+        <mat-card-header>
+          <mat-card-subtitle>
+            Mini-saison {{ match.miniSaison }} · Journée {{ match.journee }}
+            · {{ match.dateMatch | date:'dd/MM/yyyy HH:mm' }}
+          </mat-card-subtitle>
+        </mat-card-header>
+
+        <div class="tableau-score">
+          <span class="equipe domicile" [class.gagnant]="domicileGagne(match)">
+            {{ match.clubDomicileNom }}
+          </span>
+          <span class="score">
+            <span [class.gagnant]="domicileGagne(match)">{{ match.scoreDomicile }}</span>
+            -
+            <span [class.gagnant]="!domicileGagne(match)">{{ match.scoreExterieur }}</span>
+          </span>
+          <span class="equipe exterieur" [class.gagnant]="!domicileGagne(match)">
+            {{ match.clubExterieurNom }}
+          </span>
+        </div>
+
+        @if (match.mvpId) {
+          <p class="mvp">
+            <span class="badge">MVP</span>
+            {{ match.mvpPrenom }} {{ match.mvpNom }}
+          </p>
+        }
+
+        <!-- LES DEUX TABLEAUX DE STATISTIQUES -->
+        <mat-card-content>
+          <div class="equipes">
+
+            <ng-container *ngTemplateOutlet="tableauEquipe; context: {
+              nom: match.clubDomicileNom, stats: match.statsDomicile, match: match }">
+            </ng-container>
+
+            <ng-container *ngTemplateOutlet="tableauEquipe; context: {
+              nom: match.clubExterieurNom, stats: match.statsExterieur, match: match }">
+            </ng-container>
+
+          </div>
+        </mat-card-content>
+
+      </mat-card>
+    } @empty {
+      <p class="message">Aucun match joué pour le moment.</p>
+    }
+  }
+</div>
+
+<!-- TEMPLATE RÉUTILISÉ : TABLEAU DES STATS D'UNE ÉQUIPE -->
+<ng-template #tableauEquipe let-nom="nom" let-stats="stats" let-match="match">
+  <div class="equipe-bloc">
+    <h3>{{ nom }}</h3>
+    <div class="defilement">
+      <table>
+        <thead>
+          <tr>
+            <th class="joueur">Joueur</th>
+            <th>Pos</th>
+            <th>PTS</th>
+            <th title="Lancers francs">LF</th>
+            <th title="Tirs à 2 points">2P</th>
+            <th title="Tirs à 3 points">3P</th>
+            <th title="Rebonds">REB</th>
+            <th title="Passes décisives">PD</th>
+            <th title="Interceptions">INT</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (s of stats; track s.joueurId) {
+            <tr [class.ligne-mvp]="estMvp(match, s.joueurId)">
+              <td class="joueur">
+                {{ s.prenom }} {{ s.nom }}
+                @if (estMvp(match, s.joueurId)) {
+                  <span class="etoile" title="MVP du match">★</span>
+                }
+              </td>
+              <td>{{ s.poste }}</td>
+              <td class="points">{{ s.points }}</td>
+              <td>{{ s.lancersFrancs }}</td>
+              <td>{{ s.deuxPoints }}</td>
+              <td>{{ s.troisPoints }}</td>
+              <td>{{ s.rebonds }}</td>
+              <td>{{ s.passesDecisives }}</td>
+              <td>{{ s.interceptions }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</ng-template>

@@ -1,0 +1,90 @@
+<div class="page">
+  <h1>Saisons</h1>
+
+  @if (chargement) {
+    <p class="message">Chargement des saisons...</p>
+  }
+
+  @if (erreur) {
+    <p class="message erreur">Impossible de charger les saisons. L'API est-elle lancée ?</p>
+  }
+
+  @if (!chargement && !erreur) {
+
+    <!-- BLOC SAISON EN COURS -->
+    <section>
+      <h2>Saison en cours</h2>
+      @for (saison of saisonsEnCours; track saison.id) {
+        <ng-container *ngTemplateOutlet="carteSaison; context: { $implicit: saison }"></ng-container>
+      } @empty {
+        <p class="message">Aucune saison en cours.</p>
+      }
+    </section>
+
+    <!-- BLOC SAISONS PASSÉES -->
+    <section>
+      <h2>Saisons passées</h2>
+      @for (saison of saisonsPassees; track saison.id) {
+        <ng-container *ngTemplateOutlet="carteSaison; context: { $implicit: saison }"></ng-container>
+      } @empty {
+        <p class="message">Aucune saison passée.</p>
+      }
+    </section>
+  }
+</div>
+
+<!-- TEMPLATE RÉUTILISÉ POUR UNE SAISON -->
+<ng-template #carteSaison let-saison>
+  <mat-card class="carte-saison">
+    <mat-card-header>
+      <mat-card-title>{{ saison.nom }}</mat-card-title>
+      <mat-card-subtitle>
+        Du {{ saison.dateDebut | date:'dd/MM/yyyy' }}
+        @if (saison.dateFin) {
+          au {{ saison.dateFin | date:'dd/MM/yyyy' }}
+        } @else {
+          · en cours
+        }
+      </mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      @for (mini of saison.miniSaisons; track mini.numero) {
+        <div class="mini-saison">
+          <h3>Mini-saison {{ mini.numero }}</h3>
+
+          @for (match of mini.matchs; track match.id) {
+            <div class="match">
+              <span class="journee">J{{ match.journee }}</span>
+              <span class="date">{{ match.dateMatch | date:'dd/MM HH:mm' }}</span>
+
+              <span class="club domicile"
+                    [class.gagnant]="match.statut === 'TERMINE' && (match.scoreDomicile ?? 0) > (match.scoreExterieur ?? 0)">
+                {{ match.clubDomicileNom }}
+              </span>
+
+              <span class="score">
+                @if (match.statut === 'A_VENIR') {
+                  vs
+                } @else {
+                  {{ match.scoreDomicile }} - {{ match.scoreExterieur }}
+                }
+              </span>
+
+              <span class="club exterieur"
+                    [class.gagnant]="match.statut === 'TERMINE' && (match.scoreExterieur ?? 0) > (match.scoreDomicile ?? 0)">
+                {{ match.clubExterieurNom }}
+              </span>
+
+              <span class="statut" [class]="'statut ' + match.statut">
+                {{ match.statut === 'A_VENIR' ? 'À venir' : match.statut === 'EN_COURS' ? 'En cours' : 'Terminé' }}
+              </span>
+            </div>
+          }
+        </div>
+      } @empty {
+        <p class="message">Aucun match disponible pour cette saison.</p>
+      }
+    </mat-card-content>
+  </mat-card>
+</ng-template>
