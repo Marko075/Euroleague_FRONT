@@ -1,42 +1,58 @@
-@if (clubs$ | async; as clubs) {
-  <div class="liste">
+<section class="page">
+  <header class="entete">
+    <p class="sur-titre">EuroLeague · Saison 2026-2027</p>
+    <h1>Les clubs</h1>
+    <p class="sous-titre">Cinq institutions, cinq salles, cinq ambiances. Passez sur un club, cliquez pour entrer dans sa salle.</p>
+  </header>
 
-    @for (club of clubs; track club.id) {
-      <mat-card class="carte">
+  @if (clubs$ | async; as clubs) {
+    <div class="grille">
+      @for (club of clubs; track club.id; let i = $index) {
+        <button
+          type="button"
+          class="carte"
+          [ngStyle]="themeClub(club)"
+          [style.animation-delay]="i * 90 + 'ms'"
+          (mousemove)="suivreSouris($event)"
+          (mouseleave)="reinitialiser($event)"
+          (click)="ouvrir(club)"
+          [attr.aria-label]="'Voir la fiche du club ' + club.nom"
+        >
+          <span class="carte__fond" aria-hidden="true"></span>
+          <span class="carte__rayures" aria-hidden="true"></span>
+          <span class="carte__code" aria-hidden="true">{{ club.code }}</span>
+          <span class="carte__lumiere" aria-hidden="true"></span>
 
-        <div class="logo">
-          <img
-            [src]="getLogoClub(club.nom)"
-            [alt]="'Logo ' + club.nom"
-          >
-        </div>
+          <span class="carte__haut">
+            <img class="drapeau" [src]="drapeau(club.pays)" [alt]="club.pays" />
+            <span class="ville">{{ club.ville }}</span>
+            @if (club.anneeCreation) {
+              <span class="annee">Depuis {{ club.anneeCreation }}</span>
+            }
+          </span>
 
-        <div class="infos">
-          <h2>{{ club.nom }}</h2>
+          <span class="carte__logo">
+            <img [src]="logoClub(club)" [alt]="'Logo ' + club.nom" />
+          </span>
 
-          <p>
-            <strong>Ville :</strong>
-            {{ club.ville }}
-          </p>
-
-          <p>
-            <strong>Pays :</strong>
-            {{ club.pays }}
-          </p>
-
-          <p>
-            <strong>Stade :</strong>
-            {{ club.stade }}
-          </p>
-
-          <p>
-            <strong>Coach :</strong>
-            {{ club.coach }}
-          </p>
-        </div>
-
-      </mat-card>
-    }
-
-  </div>
-}
+          <span class="carte__bas">
+            <span class="nom">{{ club.nom }}</span>
+            @if (club.surnom) {
+              <span class="surnom">« {{ club.surnom }} »</span>
+            }
+            <span class="trophees" [attr.aria-label]="club.titresEuroleague + ' EuroLeague'">
+              @for (t of trophees(club.titresEuroleague); track t) {
+                <mat-icon>emoji_events</mat-icon>
+              } @empty {
+                <span class="pas-de-titre">En quête du premier titre européen</span>
+              }
+            </span>
+            <span class="cta">Entrer dans la salle <mat-icon>arrow_forward</mat-icon></span>
+          </span>
+        </button>
+      }
+    </div>
+  } @else {
+    <div class="chargement"><span></span><span></span><span></span></div>
+  }
+</section>

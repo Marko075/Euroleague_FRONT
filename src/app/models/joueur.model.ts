@@ -7,6 +7,17 @@ export interface Club {
   coach: string
   imageCoach: string | null
   logoClub: string | null
+  code: string | null
+  surnom: string | null
+  anneeCreation: number | null
+  couleurPrimaire: string
+  couleurSecondaire: string
+  capaciteStade: number | null
+  titresEuroleague: number
+  titresNationaux: number
+  description: string | null
+  latitude: number | null
+  longitude: number | null
 }
 
 export interface Joueur {

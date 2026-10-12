@@ -1,37 +1,361 @@
-.liste {
+$nuit: #0b0d12;
+$titre: "Big Shoulders Display", "Arial Narrow", sans-serif;
+$texte: "Barlow", "Helvetica Neue", sans-serif;
+
+.page {
+  min-height: calc(100vh - 68px);
+  padding: 56px clamp(16px, 5vw, 72px) 80px;
+  font-family: $texte;
+  color: #f4f4f6;
+  background:
+    radial-gradient(ellipse 60% 40% at 50% 0%, rgba(255, 255, 255, 0.07), transparent 70%),
+    // lignes du terrain : rond central et ligne médiane
+    radial-gradient(circle at 50% 115%, transparent 179px, rgba(255, 255, 255, 0.05) 180px, rgba(255, 255, 255, 0.05) 182px, transparent 183px),
+    linear-gradient(90deg, transparent calc(50% - 1px), rgba(255, 255, 255, 0.04) 50%, transparent calc(50% + 1px)),
+    $nuit;
+}
+
+.entete {
+  max-width: 760px;
+  margin-bottom: 48px;
+  animation: monter 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+
+  .sur-titre {
+    margin: 0 0 8px;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: #ff8a3d;
+  }
+
+  h1 {
+    margin: 0;
+    font-family: $titre;
+    font-weight: 900;
+    font-size: clamp(64px, 11vw, 132px);
+    line-height: 0.85;
+    text-transform: uppercase;
+    letter-spacing: -0.01em;
+  }
+
+  .sous-titre {
+    margin: 18px 0 0;
+    font-size: 18px;
+    line-height: 1.5;
+    color: rgba(244, 244, 246, 0.65);
+  }
+}
+
+.grille {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
-  padding: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 28px;
+  perspective: 1200px;
 }
 
 .carte {
-  padding: 20px;
-}
+  --rx: 0deg;
+  --ry: 0deg;
+  --mx: 50%;
+  --my: 50%;
 
-.logo {
+  position: relative;
   display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 150px;
-  margin-bottom: 15px;
-}
-
-.logo img {
-  max-width: 120px;
-  max-height: 120px;
-  object-fit: contain;
-}
-
-.infos {
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 420px;
+  padding: 22px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 18px;
+  background: #151821;
+  color: inherit;
+  font: inherit;
   text-align: left;
+  cursor: pointer;
+  transform: rotateX(var(--rx)) rotateY(var(--ry));
+  transform-style: preserve-3d;
+  transition:
+    transform 0.25s ease-out,
+    box-shadow 0.4s ease,
+    border-color 0.4s ease,
+    color 0.4s ease;
+  animation: apparaitre 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+
+  &:focus-visible {
+    outline: 3px solid var(--accent);
+    outline-offset: 4px;
+  }
+
+  // Le fond se remplit de la couleur du club depuis le bas
+  &__fond {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(160deg, var(--c1) 0%, color-mix(in srgb, var(--c1) 70%, #000) 100%);
+    clip-path: circle(0% at 50% 100%);
+    transition: clip-path 0.6s cubic-bezier(0.7, 0, 0.2, 1);
+  }
+
+  // Liseré diagonal à la couleur secondaire, façon maillot
+  &__rayures {
+    position: absolute;
+    top: -20%;
+    right: -30%;
+    width: 70%;
+    height: 140%;
+    background: repeating-linear-gradient(
+      90deg,
+      var(--c2) 0 10px,
+      transparent 10px 26px
+    );
+    opacity: 0;
+    transform: rotate(18deg) translateX(40px);
+    transition:
+      opacity 0.5s ease,
+      transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  &__code {
+    position: absolute;
+    right: -6px;
+    bottom: 92px;
+    font-family: $titre;
+    font-weight: 900;
+    font-size: 150px;
+    line-height: 1;
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(255, 255, 255, 0.08);
+    transition:
+      transform 0.6s ease,
+      -webkit-text-stroke-color 0.4s ease;
+  }
+
+  // Projecteur qui suit la souris
+  &__lumiere {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at var(--mx) var(--my), rgba(255, 255, 255, 0.22), transparent 45%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+  }
+
+  &__haut,
+  &__logo,
+  &__bas {
+    position: relative;
+    z-index: 1;
+  }
+
+  &__haut {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+
+    .drapeau {
+      width: 24px;
+      height: 16px;
+      border-radius: 3px;
+      object-fit: cover;
+      box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.25);
+    }
+
+    .annee {
+      margin-left: auto;
+      opacity: 0.6;
+    }
+  }
+
+  &__logo {
+    display: grid;
+    place-items: center;
+    height: 170px;
+    transform: translateZ(60px);
+
+    img {
+      max-width: 150px;
+      max-height: 150px;
+      object-fit: contain;
+      filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.45));
+      transition: transform 0.5s cubic-bezier(0.3, 1.6, 0.5, 1);
+    }
+  }
+
+  &__bas {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    transform: translateZ(30px);
+
+    .nom {
+      font-family: $titre;
+      font-weight: 800;
+      font-size: 32px;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+
+    .surnom {
+      font-size: 15px;
+      font-style: italic;
+      opacity: 0.7;
+    }
+
+    .trophees {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 2px;
+      min-height: 26px;
+      margin-top: 8px;
+      color: #f5c542;
+
+      mat-icon {
+        font-size: 22px;
+        width: 22px;
+        height: 22px;
+      }
+
+      .pas-de-titre {
+        font-size: 13px;
+        opacity: 0.55;
+      }
+    }
+
+    .cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 14px;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      opacity: 0;
+      transform: translateY(10px);
+      transition:
+        opacity 0.35s ease,
+        transform 0.35s ease;
+
+      mat-icon {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+        transition: transform 0.35s ease;
+      }
+    }
+  }
+
+  // ----- Survol -----
+  &:hover,
+  &:focus-visible {
+    color: var(--sur-c1);
+    border-color: transparent;
+    box-shadow:
+      0 30px 60px -20px color-mix(in srgb, var(--accent) 70%, transparent),
+      0 0 0 1px color-mix(in srgb, var(--c2) 40%, transparent);
+
+    .carte__fond {
+      clip-path: circle(150% at 50% 100%);
+    }
+
+    .carte__rayures {
+      opacity: 0.18;
+      transform: rotate(18deg) translateX(0);
+    }
+
+    .carte__code {
+      transform: translateX(-12px);
+      -webkit-text-stroke-color: color-mix(in srgb, var(--sur-c1) 25%, transparent);
+    }
+
+    .carte__lumiere {
+      opacity: 1;
+    }
+
+    .carte__logo img {
+      transform: scale(1.14) rotate(-4deg);
+    }
+
+    .trophees {
+      color: var(--sur-c1);
+    }
+
+    .cta {
+      opacity: 1;
+      transform: translateY(0);
+
+      mat-icon {
+        transform: translateX(4px);
+      }
+    }
+  }
 }
 
-.infos h2 {
-  margin: 0 0 15px 0;
-  text-align: center;
+.chargement {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  padding: 80px 0;
+
+  span {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #ff8a3d;
+    animation: rebond 0.9s ease-in-out infinite;
+
+    &:nth-child(2) {
+      animation-delay: 0.15s;
+    }
+    &:nth-child(3) {
+      animation-delay: 0.3s;
+    }
+  }
 }
 
-.infos p {
-  margin: 8px 0;
+@keyframes monter {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes rebond {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-18px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .carte,
+  .entete {
+    animation: none;
+    transform: none;
+  }
+}
+
+// propriété `translate` séparée pour ne pas écraser l'inclinaison 3D (transform)
+@keyframes apparaitre {
+  from {
+    opacity: 0;
+    translate: 0 40px;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
 }

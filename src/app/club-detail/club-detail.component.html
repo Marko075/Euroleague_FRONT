@@ -1,0 +1,224 @@
+@if (fiche$ | async; as f) {
+  <article class="fiche" [ngStyle]="themeClub(f.club)">
+    <!-- ===== Héros : la salle, aux couleurs du club ===== -->
+    <header class="heros">
+      @if (photoStade(f.club); as photo) {
+        <img class="heros__photo" [src]="photo" [alt]="f.club.stade" />
+      }
+      <div class="heros__voile" aria-hidden="true"></div>
+      <div class="heros__rayures" aria-hidden="true"></div>
+      <span class="heros__code" aria-hidden="true">{{ f.club.code }}</span>
+
+      <a class="retour" routerLink="/clubs"><mat-icon>arrow_back</mat-icon> Tous les clubs</a>
+
+      <div class="heros__contenu">
+        <img class="heros__logo" [src]="logoClub(f.club)" [alt]="'Logo ' + f.club.nom" />
+        <div class="heros__titres">
+          <p class="heros__lieu">
+            <img [src]="drapeau(f.club.pays)" [alt]="f.club.pays" />
+            {{ f.club.ville }} · {{ f.club.pays }}
+            @if (f.club.anneeCreation) {
+              <span>· Fondé en {{ f.club.anneeCreation }}</span>
+            }
+          </p>
+          <h1>{{ f.club.nom }}</h1>
+          @if (f.club.surnom) {
+            <p class="heros__surnom">« {{ f.club.surnom }} »</p>
+          }
+        </div>
+      </div>
+    </header>
+
+    <!-- ===== Chiffres clés ===== -->
+    <section class="chiffres">
+      <div class="tuile" style="--i: 0">
+        <span class="tuile__valeur">{{ f.club.titresEuroleague }}</span>
+        <span class="tuile__libelle">EuroLeague</span>
+        <span class="tuile__trophees">
+          @for (t of trophees(f.club.titresEuroleague); track t) {
+            <mat-icon>emoji_events</mat-icon>
+          }
+        </span>
+      </div>
+      <div class="tuile" style="--i: 1">
+        <span class="tuile__valeur">{{ f.club.titresNationaux }}</span>
+        <span class="tuile__libelle">Titres nationaux</span>
+      </div>
+      <div class="tuile" style="--i: 2">
+        <span class="tuile__valeur">{{ f.bilan.victoires }}<small>–{{ f.bilan.defaites }}</small></span>
+        <span class="tuile__libelle">Bilan cette saison</span>
+      </div>
+      <div class="tuile tuile--accent" style="--i: 3">
+        @if (f.bilan.rang) {
+          <span class="tuile__valeur">{{ f.bilan.rang }}<sup>{{ f.bilan.rang === 1 ? "er" : "e" }}</sup></span>
+          <span class="tuile__libelle">sur {{ f.bilan.nombreClubs }} · mini-saison {{ f.bilan.miniSaison }}</span>
+        } @else {
+          <span class="tuile__valeur">–</span>
+          <span class="tuile__libelle">Pas encore classé</span>
+        }
+      </div>
+    </section>
+
+    <div class="corps">
+      <!-- ===== Histoire + coach ===== -->
+      <section class="bloc histoire">
+        <h2><span>01</span> Le club</h2>
+        <div class="histoire__grille">
+          <p class="histoire__texte">{{ f.club.description }}</p>
+          <figure class="coach">
+            <div class="coach__photo">
+              @if (photoCoach(f.club); as photo) {
+                <img [src]="photo" [alt]="f.club.coach" />
+              } @else {
+                <span class="coach__initiales">{{ f.club.coach.charAt(0) }}</span>
+              }
+            </div>
+            <figcaption>
+              <span class="coach__role">Entraîneur</span>
+              <span class="coach__nom">{{ f.club.coach }}</span>
+            </figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <!-- ===== Forme ===== -->
+      <section class="bloc forme">
+        <h2><span>02</span> La forme</h2>
+        <div class="forme__grille">
+          <div class="forme__pastilles">
+            <span class="petit-titre">5 derniers matchs</span>
+            <div class="pastilles">
+              @for (r of f.bilan.forme; track $index) {
+                <span class="pastille" [class.pastille--v]="r === 'V'" [style.--d]="$index">{{ r }}</span>
+              } @empty {
+                <span class="vide">Pas encore de match joué.</span>
+              }
+            </div>
+          </div>
+          <div class="forme__moyennes">
+            <div>
+              <span class="grand">{{ moyenne(f.bilan.pointsMarques, f.bilan.matchsJoues) }}</span>
+              <span class="petit-titre">pts marqués / match</span>
+            </div>
+            <div>
+              <span class="grand">{{ moyenne(f.bilan.pointsEncaisses, f.bilan.matchsJoues) }}</span>
+              <span class="petit-titre">pts encaissés / match</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="calendrier">
+          <div>
+            <h3>Derniers résultats</h3>
+            <ul class="matchs">
+              @for (m of f.derniers; track m.match.id) {
+                <li class="ligne-match">
+                  <span class="resultat" [class.resultat--v]="m.victoire">{{ m.victoire ? "V" : "D" }}</span>
+                  <span class="lieu">{{ m.aDomicile ? "vs" : "@" }}</span>
+                  @if (m.adversaire) {
+                    <img class="mini-logo" [src]="logoClub(m.adversaire)" alt="" />
+                  }
+                  <a class="adversaire" [routerLink]="['/clubs', m.adversaire?.id]">{{ m.adversaireNom }}</a>
+                  <span class="score">{{ m.scorePour }}–{{ m.scoreContre }}</span>
+                </li>
+              } @empty {
+                <li class="vide">Aucun match terminé.</li>
+              }
+            </ul>
+          </div>
+          <div>
+            <h3>Prochains matchs</h3>
+            <ul class="matchs">
+              @for (m of f.prochains; track m.match.id) {
+                <li class="ligne-match">
+                  <span class="date">{{ m.match.dateMatch | date: "dd MMM" : undefined : "fr" }}</span>
+                  <span class="lieu">{{ m.aDomicile ? "vs" : "@" }}</span>
+                  @if (m.adversaire) {
+                    <img class="mini-logo" [src]="logoClub(m.adversaire)" alt="" />
+                  }
+                  <a class="adversaire" [routerLink]="['/clubs', m.adversaire?.id]">{{ m.adversaireNom }}</a>
+                  <span class="score heure">{{ m.match.dateMatch | date: "HH:mm" : undefined : "fr" }}</span>
+                </li>
+              } @empty {
+                <li class="vide">Aucun match programmé.</li>
+              }
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== Effectif ===== -->
+      <section class="bloc effectif">
+        <h2><span>03</span> L'effectif <em>{{ f.joueurs.length }} joueurs</em></h2>
+        <div class="filtres" role="group" aria-label="Filtrer par poste">
+          <button type="button" [class.actif]="posteFiltre === null" (click)="posteFiltre = null">Tous</button>
+          @for (p of postesPresents(f.joueurs); track p) {
+            <button type="button" [class.actif]="posteFiltre === p" (click)="posteFiltre = p">{{ postes[p] }}</button>
+          }
+        </div>
+        <div class="joueurs">
+          @for (j of joueursFiltres(f.joueurs); track j.id; let i = $index) {
+            <div class="joueur" [style.--i]="i">
+              <div class="joueur__photo">
+                @if (!photosManquantes.has(j.id)) {
+                  <img [src]="photoJoueur(j)" [alt]="j.prenom + ' ' + j.nom" (error)="photoIntrouvable(j)" loading="lazy" />
+                } @else {
+                  <span class="initiales">{{ initiales(j) }}</span>
+                }
+                <span class="joueur__poste">{{ j.poste }}</span>
+              </div>
+              <div class="joueur__infos">
+                <span class="prenom">{{ j.prenom }}</span>
+                <span class="nom">{{ j.nom }}</span>
+                <span class="details">
+                  {{ postes[j.poste] }}
+                  @if (j.taille) {
+                    · {{ j.taille }} cm
+                  }
+                  @if (age(j); as a) {
+                    · {{ a }} ans
+                  }
+                </span>
+                <span class="details nationalite">{{ j.nationalite }}</span>
+              </div>
+            </div>
+          }
+        </div>
+      </section>
+
+      <!-- ===== La salle ===== -->
+      <section class="bloc salle">
+        <h2><span>04</span> La salle</h2>
+        <div class="salle__grille">
+          <div class="salle__infos">
+            <span class="salle__nom">{{ f.club.stade }}</span>
+            @if (f.club.capaciteStade) {
+              <span class="salle__capacite"><strong>{{ f.club.capaciteStade | number: "1.0-0" : "fr" }}</strong> places</span>
+            }
+            @if (meteo$ | async; as meteo) {
+              <div class="meteo">
+                <mat-icon>{{ libelleMeteo(meteo.code).icone }}</mat-icon>
+                <div>
+                  <span class="meteo__temp">{{ meteo.temperature }}°C</span>
+                  <span class="meteo__texte">
+                    {{ libelleMeteo(meteo.code).texte }} à {{ f.club.ville }} · vent {{ meteo.vent }} km/h
+                  </span>
+                </div>
+              </div>
+            }
+          </div>
+          @if (f.carte) {
+            <iframe class="salle__carte" [src]="f.carte" [title]="'Carte : ' + f.club.stade" loading="lazy"></iframe>
+          }
+        </div>
+      </section>
+
+      <p class="credits">
+        Photos des salles : Wikimedia Commons (CC BY-SA) · Météo : Open-Meteo · Carte : © contributeurs OpenStreetMap ·
+        Infos clubs : Wikipédia, euroleaguebasketball.net
+      </p>
+    </div>
+  </article>
+} @else {
+  <div class="chargement"><span></span><span></span><span></span></div>
+}

@@ -63,13 +63,23 @@
                 {{ match.clubDomicileNom }}
               </span>
 
-              <span class="score">
-                @if (match.statut === 'A_VENIR') {
-                  vs
-                } @else {
+              @if (match.statut === 'TERMINE') {
+                <!-- Score cliquable : ouvre la page Matchs filtrée sur ce match -->
+                <a class="score lien-score"
+                   routerLink="/matchs"
+                   [queryParams]="{ miniSaison: mini.numero, journee: match.journee, clubId: match.clubDomicileId }"
+                   title="Voir les statistiques du match">
                   {{ match.scoreDomicile }} - {{ match.scoreExterieur }}
-                }
-              </span>
+                </a>
+              } @else {
+                <span class="score">
+                  @if (match.statut === 'A_VENIR') {
+                    vs
+                  } @else {
+                    {{ match.scoreDomicile }} - {{ match.scoreExterieur }}
+                  }
+                </span>
+              }
 
               <span class="club exterieur"
                     [class.gagnant]="match.statut === 'TERMINE' && (match.scoreExterieur ?? 0) > (match.scoreDomicile ?? 0)">

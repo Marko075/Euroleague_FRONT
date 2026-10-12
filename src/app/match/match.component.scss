@@ -8,6 +8,64 @@ h1 {
   margin-bottom: 24px;
 }
 
+/* ----- Filtres ----- */
+.filtres {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 16px;
+  margin-bottom: 28px;
+
+  label {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: #666;
+  }
+
+  select {
+    min-width: 180px;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: #fff;
+    font-size: 0.95rem;
+    color: #111;
+    cursor: pointer;
+    transition: border-color 0.2s;
+
+    &:hover,
+    &:focus {
+      border-color: #ff6a00;
+      outline: none;
+    }
+  }
+
+  .reinitialiser {
+    padding: 8px 14px;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    color: #ff6a00;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+
+    &:hover {
+      background: #fff3e6;
+    }
+  }
+
+  .compteur {
+    margin-left: auto;
+    padding-bottom: 8px;
+    font-size: 0.9rem;
+    color: #666;
+  }
+}
+
 .message {
   color: #666;
   font-style: italic;
