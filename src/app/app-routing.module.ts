@@ -5,6 +5,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { HomeComponent } from './home/home.component';
 import { JoueurComponent } from './joueur/joueur.component';
 import { ClubComponent } from './club/club.component';
+import { ClubDetailComponent } from './club-detail/club-detail.component';
 import { SaisonComponent } from './saison/saison.component';
 import { MatchComponent } from './match/match.component';
 import { ClassementComponent } from 'classement/classement.component';
@@ -13,6 +14,7 @@ const routes: Routes = [
   { path: '', component: HomeComponent },
   { path: 'joueurs', component: JoueurComponent },
   { path: 'clubs', component: ClubComponent },
+  { path: 'clubs/:id', component: ClubDetailComponent },
   { path: 'saisons', component: SaisonComponent },
   { path: 'matchs', component: MatchComponent },
   { path: 'classements', component: ClassementComponent },
