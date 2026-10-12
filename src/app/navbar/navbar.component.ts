@@ -1,4 +1,4 @@
-import { Component } from "@angular/core"
+import { Component, HostListener } from "@angular/core"
 import { Link } from "models/links.model"
 
 @Component({
@@ -8,12 +8,26 @@ import { Link } from "models/links.model"
 })
 export class NavbarComponent {
   links: Link[] = []
+  sidebarOpen = false
 
   constructor() {
-    this.links.push({ name: "Joueurs", href: "joueurs" })
-    this.links.push({ name: "Clubs", href: "clubs" })
-    this.links.push({ name: "Saisons", href: "saisons" })
-    this.links.push({ name: "Matchs", href: "matchs" })
-    this.links.push({ name: "Classements", href: "classements" })
+    this.links.push({ name: "Joueurs", href: "joueurs", icon: "person" })
+    this.links.push({ name: "Clubs", href: "clubs", icon: "groups" })
+    this.links.push({ name: "Saisons", href: "saisons", icon: "calendar_month" })
+    this.links.push({ name: "Matchs", href: "matchs", icon: "scoreboard" })
+    this.links.push({ name: "Classements", href: "classements", icon: "leaderboard" })
+  }
+
+  toggleSidebar() {
+    this.sidebarOpen = !this.sidebarOpen
+  }
+
+  closeSidebar() {
+    this.sidebarOpen = false
+  }
+
+  @HostListener("document:keydown.escape")
+  onEscape() {
+    this.closeSidebar()
   }
 }

@@ -4,6 +4,10 @@
 /* You can add global styles to this file, and also import other style files */
 
 html, body { height: 100%;}
+
+// Le composant racine doit être un bloc qui englobe toute la page,
+// sinon la navbar "sticky" est limitée à la hauteur du body (= écran)
+root { display: block; min-height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
 .mat-mini-fab {

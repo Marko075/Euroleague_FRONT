@@ -1,12 +1,47 @@
 <nav>
-  <div>
-    <img src="assets/takima-logo.png" routerLink="" />
-    <mat-nav-list>
-      @for (link of links; track link) {
-      <a mat-list-item routerLink="{{ link.href }}" routerLinkActive="active">
-        <span>{{ link.name }}</span>
-      </a>
-      }
-    </mat-nav-list>
-  </div>
+  <button class="burger" type="button" aria-label="Ouvrir le menu" (click)="toggleSidebar()">
+    <span></span>
+    <span></span>
+  </button>
+  <a class="brand" routerLink="">
+    <span class="material-icons">sports_basketball</span>
+    <span class="brand-name">EuroLeague</span>
+  </a>
+  <ul class="links">
+    @for (link of links; track link) {
+    <li>
+      <a routerLink="{{ link.href }}" routerLinkActive="active">{{ link.name }}</a>
+    </li>
+    }
+  </ul>
 </nav>
+
+<div class="backdrop" [class.open]="sidebarOpen" (click)="closeSidebar()"></div>
+
+<aside class="sidebar" [class.open]="sidebarOpen" [attr.aria-hidden]="!sidebarOpen">
+  <div class="sidebar-header">
+    <a class="brand" routerLink="" (click)="closeSidebar()">
+      <span class="material-icons">sports_basketball</span>
+      <span class="brand-name">EuroLeague</span>
+    </a>
+    <button class="close" type="button" aria-label="Fermer le menu" (click)="closeSidebar()">
+      <span class="material-icons">close</span>
+    </button>
+  </div>
+  <ul>
+    <li>
+      <a routerLink="" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" (click)="closeSidebar()">
+        <span class="material-icons">home</span>
+        Accueil
+      </a>
+    </li>
+    @for (link of links; track link) {
+    <li>
+      <a routerLink="{{ link.href }}" routerLinkActive="active" (click)="closeSidebar()">
+        <span class="material-icons">{{ link.icon }}</span>
+        {{ link.name }}
+      </a>
+    </li>
+    }
+  </ul>
+</aside>
