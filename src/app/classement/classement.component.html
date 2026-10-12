@@ -1,0 +1,60 @@
+<div class="page">
+  <h1>Classement</h1>
+
+  @if (chargement) {
+    <p class="message">Chargement du classement...</p>
+  }
+
+  @if (erreur) {
+    <p class="message erreur">Impossible de charger le classement. L'API est-elle lancée ?</p>
+  }
+
+  @if (!chargement && !erreur) {
+    <div class="grille">
+      @for (classement of classements; track classement.miniSaison) {
+        <mat-card class="carte-classement">
+          <mat-card-header>
+            <mat-card-title>Mini-saison {{ classement.miniSaison }}</mat-card-title>
+            <mat-card-subtitle>Classement après la J{{ classement.journee }}</mat-card-subtitle>
+          </mat-card-header>
+
+          <mat-card-content>
+            <table>
+              <thead>
+                <tr>
+                  <th class="rang">#</th>
+                  <th class="equipe">Équipe</th>
+                  <th title="Victoires">V</th>
+                  <th title="Défaites">D</th>
+                  <th title="Paniers marqués - paniers encaissés">+/-</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (ligne of classement.lignes; track ligne.clubId) {
+                  <tr [class.premier]="ligne.rang === '1'">
+                    <td class="rang" [class.egalite]="ligne.rang === 'equal'">{{ ligne.rang }}</td>
+                    <td class="equipe">{{ ligne.clubNom }}</td>
+                    <td class="victoires">{{ ligne.victoires }}</td>
+                    <td>{{ ligne.defaites }}</td>
+                    <td class="diff"
+                        [class.positif]="ligne.diff > 0"
+                        [class.negatif]="ligne.diff < 0">
+                      {{ formatDiff(ligne.diff) }}
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </mat-card-content>
+        </mat-card>
+      } @empty {
+        <p class="message">Aucun match joué pour le moment : pas encore de classement.</p>
+      }
+    </div>
+
+    <p class="legende">
+      V : victoires · D : défaites · +/- : paniers marqués moins paniers encaissés ·
+      « equal » : égalité parfaite avec l'équipe précédente
+    </p>
+  }
+</div>

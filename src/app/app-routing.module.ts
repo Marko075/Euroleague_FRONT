@@ -7,6 +7,7 @@ import { JoueurComponent } from './joueur/joueur.component';
 import { ClubComponent } from './club/club.component';
 import { SaisonComponent } from './saison/saison.component';
 import { MatchComponent } from './match/match.component';
+import { ClassementComponent } from 'classement/classement.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -14,6 +15,7 @@ const routes: Routes = [
   { path: 'clubs', component: ClubComponent },
   { path: 'saisons', component: SaisonComponent },
   { path: 'matchs', component: MatchComponent },
+  { path: 'classements', component: ClassementComponent },
   { path: '**', redirectTo: '' }
 ];
 

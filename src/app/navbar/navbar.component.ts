@@ -14,5 +14,6 @@ export class NavbarComponent {
     this.links.push({ name: "Clubs", href: "clubs" })
     this.links.push({ name: "Saisons", href: "saisons" })
     this.links.push({ name: "Matchs", href: "matchs" })
+    this.links.push({ name: "Classements", href: "classements" })
   }
 }
