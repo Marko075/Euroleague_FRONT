@@ -17,6 +17,7 @@ import { ClubComponent } from './club/club.component';
 import { SaisonComponent } from './saison/saison.component';
 import { MatchComponent } from './match/match.component';
 import { ClassementComponent } from './classement/classement.component';
+import { StatistiquesComponent } from './statistiques/statistiques.component';
 
 @NgModule({
   declarations: [
@@ -27,7 +28,8 @@ import { ClassementComponent } from './classement/classement.component';
     ClubComponent,
     SaisonComponent,
     MatchComponent,
-    ClassementComponent
+    ClassementComponent,
+    StatistiquesComponent
   ],
   imports: [
     BrowserModule,

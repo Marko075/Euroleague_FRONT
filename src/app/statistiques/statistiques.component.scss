@@ -1,0 +1,355 @@
+
+/* Page principale */
+.page-statistiques {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 32px 24px;
+  color: #1f2937;
+}
+
+/* En-tête */
+.entete {
+  margin-bottom: 32px;
+
+  h1 {
+    margin: 0 0 10px;
+    font-size: 30px;
+    font-weight: 700;
+    color: #111827;
+  }
+
+  p {
+    margin: 0;
+    color: #6b7280;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+}
+
+/* Zone des filtres */
+.filtres {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+  align-items: start;
+  margin-bottom: 32px;
+  padding: 24px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+}
+
+/* Chaque filtre */
+.filtre {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  min-width: 0;
+
+  label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #374151;
+  }
+
+  select,
+  input {
+    box-sizing: border-box;
+    width: 100%;
+    min-height: 44px;
+    padding: 10px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #1f2937;
+    font: inherit;
+    font-size: 14px;
+    outline: none;
+    transition:
+      border-color 0.2s ease,
+      box-shadow 0.2s ease;
+  }
+
+  select {
+    cursor: pointer;
+  }
+
+  select:disabled {
+    cursor: not-allowed;
+    background: #f3f4f6;
+    color: #9ca3af;
+  }
+
+  input::placeholder {
+    color: #9ca3af;
+  }
+
+  select:focus,
+  input:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+  }
+
+  small {
+    color: #6b7280;
+    font-size: 12px;
+    line-height: 1.5;
+  }
+}
+
+/* Recherche et liste déroulante des joueurs */
+.filtre-joueur {
+  position: relative;
+}
+
+.liste-joueurs {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  max-height: 280px;
+  overflow-y: auto;
+  background: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+/* Une option de joueur */
+.option-joueur {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  width: 100%;
+  padding: 12px 14px;
+  border: none;
+  border-bottom: 1px solid #f3f4f6;
+  background: #ffffff;
+  color: #1f2937;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s ease;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &:hover,
+  &:focus-visible {
+    background: #eff6ff;
+    outline: none;
+  }
+}
+
+.nom-joueur {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.club-joueur {
+  color: #6b7280;
+  font-size: 12px;
+}
+
+.aucun-joueur {
+  padding: 14px;
+  color: #6b7280;
+  font-size: 14px;
+  text-align: center;
+}
+
+/* Messages de chargement et d'information */
+.message {
+  margin: 24px 0;
+  padding: 20px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background: #f9fafb;
+  color: #4b5563;
+  font-size: 14px;
+  text-align: center;
+}
+
+.chargement {
+  border-color: #bfdbfe;
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.erreur {
+  border-color: #fecaca;
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+/* Carte des statistiques du joueur */
+.carte-statistiques {
+  padding: 28px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.05);
+}
+
+/* Identité du joueur */
+.entete-joueur {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.photo-joueur {
+  flex-shrink: 0;
+  width: 110px;
+  height: 130px;
+  object-fit: cover;
+  object-position: center top;
+  border-radius: 10px;
+  background: #f3f4f6;
+}
+
+.identite-joueur {
+  h2 {
+    margin: 0 0 10px;
+    color: #111827;
+    font-size: 24px;
+    font-weight: 700;
+  }
+
+  p {
+    margin: 6px 0;
+    color: #6b7280;
+    font-size: 14px;
+  }
+}
+
+/* Période sélectionnée */
+.resume-periode {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 24px 0;
+  color: #4b5563;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* Grille des statistiques */
+.grille-statistiques {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 16px;
+}
+
+/* Une statistique */
+.statistique {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 120px;
+  padding: 20px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  background: #f9fafb;
+  text-align: center;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+  }
+}
+
+.valeur {
+  color: #1d4ed8;
+  font-size: 30px;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.libelle {
+  color: #6b7280;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+/* Tablettes */
+@media (max-width: 900px) {
+  .filtres {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .filtre-joueur {
+    grid-column: 1 / -1;
+  }
+
+  .grille-statistiques {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* Téléphones */
+@media (max-width: 600px) {
+  .page-statistiques {
+    padding: 20px 14px;
+  }
+
+  .entete {
+    margin-bottom: 24px;
+
+    h1 {
+      font-size: 24px;
+    }
+  }
+
+  .filtres {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    padding: 18px;
+  }
+
+  .filtre-joueur {
+    grid-column: auto;
+  }
+
+  .carte-statistiques {
+    padding: 18px;
+  }
+
+  .entete-joueur {
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .photo-joueur {
+    width: 85px;
+    height: 105px;
+  }
+
+  .identite-joueur h2 {
+    font-size: 19px;
+  }
+
+  .grille-statistiques {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .statistique {
+    min-height: 100px;
+    padding: 14px 8px;
+  }
+
+  .valeur {
+    font-size: 26px;
+  }
+}

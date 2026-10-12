@@ -1,0 +1,172 @@
+
+<div class="page-statistiques">
+  <header class="entete">
+    <h1>Statistiques des joueurs</h1>
+    <p>Consulte les performances des joueurs selon la période choisie.</p>
+  </header>
+
+  <section class="filtres">
+    <div class="filtre">
+      <label for="miniSaison">Mini-saison</label>
+      <select
+        id="miniSaison"
+        [value]="miniSaisonSelectionnee ?? ''"
+        (change)="changerMiniSaison($event)"
+      >
+        <option value="">Toutes les mini-saisons</option>
+
+        @for (periode of periodes; track periode.miniSaison) {
+          <option [value]="periode.miniSaison">
+            Mini-saison {{ periode.miniSaison }}
+          </option>
+        }
+      </select>
+    </div>
+
+    <div class="filtre">
+      <label for="journee">Journée (facultatif)</label>
+      <select
+        id="journee"
+        [value]="journeeSelectionnee ?? ''"
+        (change)="changerJournee($event)"
+        [disabled]="miniSaisonSelectionnee === null"
+      >
+        <option value="">Toutes les journées de la période</option>
+
+        @for (journee of journeesDisponibles; track journee) {
+          <option [value]="journee">
+            Journée {{ journee }}
+          </option>
+        }
+      </select>
+
+      <small>
+        Sans journée précise, les statistiques sont cumulées sur la période choisie.
+      </small>
+    </div>
+
+    <div class="filtre filtre-joueur">
+      <label for="rechercheJoueur">Rechercher un joueur</label>
+
+      <input
+        id="rechercheJoueur"
+        type="text"
+        placeholder="Tape un nom ou un prénom..."
+        [value]="rechercheJoueur"
+        (input)="changerRechercheJoueur($event)"
+        autocomplete="off"
+        role="combobox"
+        aria-autocomplete="list"
+        aria-controls="listeJoueurs"
+        [attr.aria-expanded]="listeJoueursOuverte"
+      />
+
+      @if (listeJoueursOuverte) {
+        <div id="listeJoueurs" class="liste-joueurs" role="listbox">
+          @for (joueur of joueursFiltres; track joueur.id) {
+            <button
+              type="button"
+              class="option-joueur"
+              role="option"
+              (click)="selectionnerJoueur(joueur)"
+            >
+              <span class="nom-joueur">
+                {{ joueur.prenom }} {{ joueur.nom }}
+              </span>
+
+              @if (joueur.clubNom) {
+                <span class="club-joueur">
+                  {{ joueur.clubNom }}
+                </span>
+              }
+            </button>
+          }
+
+          @if (joueursFiltres.length === 0) {
+            <div class="aucun-joueur">
+              Aucun joueur trouvé.
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </section>
+
+  @if (chargement) {
+    <div class="message chargement">
+      Chargement des statistiques...
+    </div>
+  }
+
+  @if (erreur) {
+    <div class="message erreur">
+      {{ erreur }}
+    </div>
+  }
+
+  @if (!chargement && !erreur && joueurSelectionne === null) {
+    <div class="message">
+      Sélectionne un joueur pour afficher ses statistiques.
+    </div>
+  }
+
+  @if (!chargement && statistiques) {
+    <section class="carte-statistiques">
+      <div class="entete-joueur">
+        <img
+          class="photo-joueur"
+          [src]="getPhotoJoueur(statistiques.nom, statistiques.prenom)"
+          [alt]="statistiques.prenom + ' ' + statistiques.nom"
+          (error)="$any($event.target).style.display = 'none'"
+        />
+
+        <div class="identite-joueur">
+          <h2>{{ statistiques.prenom }} {{ statistiques.nom }}</h2>
+          <p>{{ statistiques.clubNom || 'Club non renseigné' }}</p>
+          <p>{{ statistiques.poste || 'Poste non renseigné' }}</p>
+        </div>
+      </div>
+
+      <div class="resume-periode">
+        @if (miniSaisonSelectionnee === null) {
+          <span>Toutes les mini-saisons</span>
+        } @else {
+          <span>Mini-saison {{ miniSaisonSelectionnee }}</span>
+        }
+
+        @if (journeeSelectionnee !== null) {
+          <span> — Journée {{ journeeSelectionnee }}</span>
+        } @else if (miniSaisonSelectionnee !== null) {
+          <span> — Toutes les journées</span>
+        }
+      </div>
+
+      <div class="grille-statistiques">
+        <div class="statistique">
+          <span class="valeur">{{ statistiques.matchsJoues }}</span>
+          <span class="libelle">Matchs joués</span>
+        </div>
+
+        <div class="statistique">
+          <span class="valeur">{{ statistiques.points }}</span>
+          <span class="libelle">Points</span>
+        </div>
+
+        <div class="statistique">
+          <span class="valeur">{{ statistiques.rebonds }}</span>
+          <span class="libelle">Rebonds</span>
+        </div>
+
+        <div class="statistique">
+          <span class="valeur">{{ statistiques.passesDecisives }}</span>
+          <span class="libelle">Passes décisives</span>
+        </div>
+
+        <div class="statistique">
+          <span class="valeur">{{ statistiques.nbMvp }}</span>
+          <span class="libelle">MVP</span>
+        </div>
+      </div>
+    </section>
+  }
+</div>
