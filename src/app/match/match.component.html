@@ -1,6 +1,47 @@
 <div class="page">
   <h1>Statistiques des matchs</h1>
 
+  <!-- FILTRES : tous optionnels et cumulables -->
+  <div class="filtres">
+    <label>
+      Mini-saison
+      <select (change)="changerFiltre('miniSaison', $event)">
+        <option value="" [selected]="filtres.miniSaison === null">Toutes</option>
+        @for (ms of miniSaisons; track ms) {
+          <option [value]="ms" [selected]="filtres.miniSaison === ms">Mini-saison {{ ms }}</option>
+        }
+      </select>
+    </label>
+
+    <label>
+      Journée
+      <select (change)="changerFiltre('journee', $event)">
+        <option value="" [selected]="filtres.journee === null">Toutes</option>
+        @for (j of journees; track j) {
+          <option [value]="j" [selected]="filtres.journee === j">Journée {{ j }}</option>
+        }
+      </select>
+    </label>
+
+    <label>
+      Club
+      <select (change)="changerFiltre('clubId', $event)">
+        <option value="" [selected]="filtres.clubId === null">Tous</option>
+        @for (club of clubs; track club.id) {
+          <option [value]="club.id" [selected]="filtres.clubId === club.id">{{ club.nom }}</option>
+        }
+      </select>
+    </label>
+
+    @if (filtreActif) {
+      <button type="button" class="reinitialiser" (click)="reinitialiser()">Réinitialiser</button>
+    }
+
+    @if (!chargement && !erreur) {
+      <span class="compteur">{{ matchs.length }} match{{ matchs.length > 1 ? 's' : '' }}</span>
+    }
+  </div>
+
   @if (chargement) {
     <p class="message">Chargement des matchs...</p>
   }
@@ -59,7 +100,13 @@
 
       </mat-card>
     } @empty {
-      <p class="message">Aucun match joué pour le moment.</p>
+      <p class="message">
+        @if (filtreActif) {
+          Aucun match ne correspond à ces filtres.
+        } @else {
+          Aucun match joué pour le moment.
+        }
+      </p>
     }
   }
 </div>
