@@ -21,6 +21,9 @@ import { SaisonComponent } from './saison/saison.component';
 import { MatchComponent } from './match/match.component';
 import { ClassementComponent } from './classement/classement.component';
 import { StatistiquesComponent } from './statistiques/statistiques.component';
+import { CalendrierComponent } from './calendrier/calendrier.component';
+import { FooterComponent } from './footer/footer.component';
+import { EntetePageComponent } from './entete-page/entete-page.component';
 
 // formats français (dates, nombres) utilisables via le paramètre "fr" des pipes
 registerLocaleData(localeFr);
@@ -36,7 +39,10 @@ registerLocaleData(localeFr);
     SaisonComponent,
     MatchComponent,
     ClassementComponent,
-    StatistiquesComponent
+    StatistiquesComponent,
+    CalendrierComponent,
+    FooterComponent,
+    EntetePageComponent
   ],
   imports: [
     BrowserModule,

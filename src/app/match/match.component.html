@@ -1,6 +1,18 @@
-<div class="page">
-  <h1>Statistiques des matchs</h1>
+<entete-page
+  surTitre="EuroLeague · Feuilles de match"
+  titre="Les matchs"
+  accent="et leurs stats"
+  description="Tous les matchs joués, avec la ligne de statistiques de chaque joueur. Filtrez par mini-saison, journée ou club."
+>
+  @if (!chargement && !erreur) {
+    <div class="compteur-geant">
+      <b>{{ matchs.length }}</b>
+      <span>match{{ matchs.length > 1 ? "s" : "" }}</span>
+    </div>
+  }
+</entete-page>
 
+<div class="contenu">
   <!-- FILTRES : tous optionnels et cumulables -->
   <div class="filtres">
     <label>
@@ -36,14 +48,10 @@
     @if (filtreActif) {
       <button type="button" class="reinitialiser" (click)="reinitialiser()">Réinitialiser</button>
     }
-
-    @if (!chargement && !erreur) {
-      <span class="compteur">{{ matchs.length }} match{{ matchs.length > 1 ? 's' : '' }}</span>
-    }
   </div>
 
   @if (chargement) {
-    <p class="message">Chargement des matchs...</p>
+    <p class="message">Chargement des matchs…</p>
   }
 
   @if (erreur) {
@@ -51,54 +59,103 @@
   }
 
   @if (!chargement && !erreur) {
-    @for (match of matchs; track match.id) {
-      <mat-card class="carte-match">
-
-        <!-- EN-TÊTE : score, date, MVP -->
-        <mat-card-header>
-          <mat-card-subtitle>
-            Mini-saison {{ match.miniSaison }} · Journée {{ match.journee }}
-            · {{ match.dateMatch | date:'dd/MM/yyyy HH:mm' }}
-          </mat-card-subtitle>
-        </mat-card-header>
+    @for (match of matchs; track match.id; let i = $index) {
+      <article class="match" [ngStyle]="couleurs(match, i)">
+        <!-- EN-TÊTE : date, score, MVP -->
+        <p class="match__meta">
+          Mini-saison {{ match.miniSaison }} · Journée {{ match.journee }} ·
+          {{ match.dateMatch | date: "EEEE d MMMM yyyy · HH:mm" : undefined : "fr" }}
+        </p>
 
         <div class="tableau-score">
-          <span class="equipe domicile" [class.gagnant]="domicileGagne(match)">
-            {{ match.clubDomicileNom }}
-          </span>
-          <span class="score">
-            <span [class.gagnant]="domicileGagne(match)">{{ match.scoreDomicile }}</span>
-            -
-            <span [class.gagnant]="!domicileGagne(match)">{{ match.scoreExterieur }}</span>
-          </span>
-          <span class="equipe exterieur" [class.gagnant]="!domicileGagne(match)">
-            {{ match.clubExterieurNom }}
-          </span>
+          <a
+            class="equipe equipe--domicile"
+            [class.gagnant]="domicileGagne(match)"
+            [routerLink]="['/clubs', match.clubDomicileId]"
+          >
+            <span>{{ match.clubDomicileNom }}</span>
+            <img [src]="logo(match.clubDomicileId)" alt="" />
+          </a>
+          <div class="score" [attr.aria-label]="match.scoreDomicile + ' à ' + match.scoreExterieur">
+            <b [class.perdant]="!domicileGagne(match)">{{ match.scoreDomicile }}</b>
+            <i>–</i>
+            <b [class.perdant]="domicileGagne(match)">{{ match.scoreExterieur }}</b>
+          </div>
+          <a class="equipe" [class.gagnant]="!domicileGagne(match)" [routerLink]="['/clubs', match.clubExterieurId]">
+            <img [src]="logo(match.clubExterieurId)" alt="" />
+            <span>{{ match.clubExterieurNom }}</span>
+          </a>
         </div>
 
-        @if (match.mvpId) {
-          <p class="mvp">
-            <span class="badge">MVP</span>
-            {{ match.mvpPrenom }} {{ match.mvpNom }}
-          </p>
-        }
+        <div class="resume">
+          @if (match.mvpId) {
+            <div class="mvp">
+              <span class="mvp__portrait">
+                <img
+                  [src]="photoMvp(match)"
+                  alt=""
+                  loading="lazy"
+                  (error)="$any($event.target).style.display = 'none'"
+                />
+              </span>
+              <span>
+                <small>MVP du match</small>
+                <b>{{ match.mvpPrenom }} {{ match.mvpNom }}</b>
+              </span>
+            </div>
+          }
+          <span class="meilleurs">
+            Meilleurs marqueurs :
+            @if (meilleur(match.statsDomicile); as s) {
+              <b>{{ s.prenom.charAt(0) }}. {{ s.nom }}</b> {{ s.points }} pts
+            }
+            ·
+            @if (meilleur(match.statsExterieur); as s) {
+              <b>{{ s.prenom.charAt(0) }}. {{ s.nom }}</b> {{ s.points }} pts
+            }
+          </span>
+          <button
+            type="button"
+            class="bouton-feuille"
+            [attr.aria-expanded]="estOuvert(match)"
+            (click)="basculer(match)"
+          >
+            {{ estOuvert(match) ? "Masquer la feuille" : "Feuille de match" }}
+            <mat-icon aria-hidden="true">expand_more</mat-icon>
+          </button>
+        </div>
 
         <!-- LES DEUX TABLEAUX DE STATISTIQUES -->
-        <mat-card-content>
+        @if (estOuvert(match)) {
           <div class="equipes">
-
-            <ng-container *ngTemplateOutlet="tableauEquipe; context: {
-              nom: match.clubDomicileNom, stats: match.statsDomicile, match: match }">
+            <ng-container
+              *ngTemplateOutlet="
+                tableauEquipe;
+                context: {
+                  nom: match.clubDomicileNom,
+                  clubId: match.clubDomicileId,
+                  stats: match.statsDomicile,
+                  match: match,
+                }
+              "
+            >
             </ng-container>
 
-            <ng-container *ngTemplateOutlet="tableauEquipe; context: {
-              nom: match.clubExterieurNom, stats: match.statsExterieur, match: match }">
+            <ng-container
+              *ngTemplateOutlet="
+                tableauEquipe;
+                context: {
+                  nom: match.clubExterieurNom,
+                  clubId: match.clubExterieurId,
+                  stats: match.statsExterieur,
+                  match: match,
+                }
+              "
+            >
             </ng-container>
-
           </div>
-        </mat-card-content>
-
-      </mat-card>
+        }
+      </article>
     } @empty {
       <p class="message">
         @if (filtreActif) {
@@ -112,9 +169,9 @@
 </div>
 
 <!-- TEMPLATE RÉUTILISÉ : TABLEAU DES STATS D'UNE ÉQUIPE -->
-<ng-template #tableauEquipe let-nom="nom" let-stats="stats" let-match="match">
-  <div class="equipe-bloc">
-    <h3>{{ nom }}</h3>
+<ng-template #tableauEquipe let-nom="nom" let-clubId="clubId" let-stats="stats" let-match="match">
+  <div class="equipe-bloc" [ngStyle]="theme(clubId)">
+    <h3><img [src]="logo(clubId)" alt="" />{{ nom }}</h3>
     <div class="defilement">
       <table>
         <thead>

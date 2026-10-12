@@ -1,0 +1,220 @@
+<section class="page">
+  <svg class="filigrane" viewBox="0 0 200 200" aria-hidden="true">
+    <circle cx="100" cy="100" r="96" />
+    <path d="M100 4v192M4 100h192" />
+    <path d="M33 32c22 18 34 42 34 68s-12 50-34 68M167 32c-22 18-34 42-34 68s12 50 34 68" />
+  </svg>
+
+  <div class="contenu">
+    <!-- ===== Grille du mois : tous les matchs de la compétition ===== -->
+    <div class="calendrier">
+      <header class="entete">
+        <div>
+          <h1>Calendrier</h1>
+          <p class="sous-titre">EuroLeague · {{ saison?.nom ?? "Saison en cours" }}</p>
+        </div>
+        <div class="navigation">
+          <button type="button" (click)="changerMois(-1)" aria-label="Mois précédent">
+            <mat-icon>chevron_left</mat-icon>
+          </button>
+          <button type="button" (click)="revenirAujourdhui()">Aujourd'hui</button>
+          <button type="button" (click)="changerMois(1)" aria-label="Mois suivant">
+            <mat-icon>chevron_right</mat-icon>
+          </button>
+        </div>
+      </header>
+
+      @if (chargement) {
+        <div class="chargement"><span></span><span></span><span></span></div>
+      } @else if (erreur) {
+        <p class="message">Impossible de charger le calendrier. L'API est-elle lancée ?</p>
+      } @else {
+        <div class="jours-semaine" aria-hidden="true">
+          @for (nom of joursSemaine; track nom) {
+            <span>{{ nom }}</span>
+          }
+        </div>
+
+        <div class="grille">
+          @for (semaine of semaines; track semaine[0].date.getTime(); let s = $index) {
+            <div class="semaine">
+              @for (jour of semaine; track jour.date.getTime()) {
+                @if (jour.matchs[0]; as match) {
+                  <button
+                    type="button"
+                    class="case case--match"
+                    [class.case--hors-mois]="!jour.dansLeMois"
+                    [class.case--aujourdhui]="jour.aujourdhui"
+                    [class.case--termine]="estTermine(match)"
+                    [class.case--selection]="match === selection"
+                    [class.case--nouveau]="recemmentSimules.has(match.id)"
+                    [style.animation-delay.ms]="(s * 7 + $index) * 14"
+                    [attr.aria-label]="libelleMatch(match)"
+                    [attr.aria-pressed]="match === selection"
+                    (click)="selectionner(match)"
+                  >
+                    <span class="case__num">{{ jour.date.getDate() }}</span>
+                    <span class="case__affiche">
+                      <img [src]="logo(match.domicile)" alt="" />
+                      <img [src]="logo(match.exterieur)" alt="" />
+                    </span>
+                    <span class="case__texte">
+                      <span class="case__lieu">
+                        {{ sigle(match.domicile, match.clubDomicileNom) }} –
+                        {{ sigle(match.exterieur, match.clubExterieurNom) }}
+                      </span>
+                      @if (estTermine(match)) {
+                        <span class="case__score">{{ match.scoreDomicile }} – {{ match.scoreExterieur }}</span>
+                      } @else {
+                        <span class="case__competition">{{ match.date | date: "HH:mm" }} · J{{ match.journee }}</span>
+                      }
+                    </span>
+                    @if (jour.matchs.length > 1) {
+                      <span class="case__plus">+{{ jour.matchs.length - 1 }}</span>
+                    }
+                  </button>
+                } @else {
+                  <div
+                    class="case"
+                    [class.case--hors-mois]="!jour.dansLeMois"
+                    [class.case--aujourdhui]="jour.aujourdhui"
+                    [style.animation-delay.ms]="(s * 7 + $index) * 14"
+                  >
+                    <span class="case__num">{{ jour.date.getDate() }}</span>
+                    @if (jour.aujourdhui) {
+                      <span class="case__badge">Aujourd'hui</span>
+                    }
+                  </div>
+                }
+              }
+            </div>
+          }
+        </div>
+
+        <ul class="legende">
+          <li><span class="echantillon echantillon--match"></span>À venir</li>
+          <li><span class="echantillon echantillon--termine"></span>Joué</li>
+          <li><span class="echantillon echantillon--aujourdhui"></span>Aujourd'hui</li>
+        </ul>
+      }
+    </div>
+
+    <!-- ===== Panneau latéral : le mois, la simulation, le match sélectionné ===== -->
+    <aside class="panneau">
+      <div class="panneau__haut">
+        <p class="panneau__annee">{{ mois | date: "yyyy" }}</p>
+        <p class="panneau__mois">{{ mois | date: "MMMM" : undefined : "fr" }}</p>
+        <p class="panneau__info">{{ infoMois }}</p>
+      </div>
+
+      @if (cible) {
+        <section class="simulation" aria-labelledby="titre-simulation">
+          <h2 class="panneau__titre" id="titre-simulation">Simulation</h2>
+          <div class="simulation__entete">
+            <span class="simulation__libelle">Mini-saison {{ cible.numero }}</span>
+            <span class="simulation__compte">{{ cible.joues }} / {{ cible.total }} matchs joués</span>
+          </div>
+          <div
+            class="simulation__barre"
+            role="progressbar"
+            aria-label="Matchs joués"
+            aria-valuemin="0"
+            [attr.aria-valuemax]="cible.total"
+            [attr.aria-valuenow]="cible.joues"
+          >
+            <span [style.width.%]="cible.total ? (cible.joues / cible.total) * 100 : 0"></span>
+          </div>
+
+          @if (cible.prochaineJournee !== null) {
+            <button type="button" class="simulation__bouton" [disabled]="enCours !== null" (click)="jouerJournee()">
+              @if (enCours === "journee") {
+                <span class="tourniquet" aria-hidden="true"></span>Simulation…
+              } @else {
+                <mat-icon>play_arrow</mat-icon>Jouer la journée {{ cible.prochaineJournee }}
+              }
+            </button>
+            <button
+              type="button"
+              class="simulation__bouton simulation__bouton--principal"
+              [disabled]="enCours !== null"
+              (click)="lancerMiniSaison()"
+            >
+              @if (enCours === "miniSaison") {
+                <span class="tourniquet" aria-hidden="true"></span>Simulation…
+              } @else {
+                <mat-icon>fast_forward</mat-icon>Lancer la mini-saison {{ cible.numero }}
+              }
+            </button>
+          } @else {
+            <p class="simulation__fin">
+              <mat-icon>emoji_events</mat-icon>
+              Tous les matchs de la mini-saison {{ cible.numero }} ont été joués.
+            </p>
+          }
+
+          @if (cible.joues > 0) {
+            <button
+              type="button"
+              class="simulation__reinitialiser"
+              [disabled]="enCours !== null"
+              (click)="reinitialiser()"
+            >
+              @if (enCours === "reinitialisation") {
+                <span class="tourniquet" aria-hidden="true"></span>
+              } @else {
+                <mat-icon>restart_alt</mat-icon>
+              }
+              Réinitialiser la mini-saison {{ cible.numero }}
+            </button>
+          }
+
+          @if (message; as m) {
+            <p class="simulation__message" [class.simulation__message--erreur]="!m.succes" role="status">
+              {{ m.texte }}
+              @if (m.lienMatchs) {
+                <a routerLink="/matchs">Voir les feuilles de match <mat-icon>arrow_forward</mat-icon></a>
+              }
+            </p>
+          }
+        </section>
+      }
+
+      @if (selection; as m) {
+        <section class="selection" aria-live="polite">
+          <h2 class="panneau__titre">{{ estTermine(m) ? "Match joué" : "Match à venir" }}</h2>
+          <p class="selection__date">{{ m.date | date: "EEEE d MMMM · HH:mm" : undefined : "fr" }}</p>
+
+          <div class="selection__affiche">
+            <a class="selection__club" [routerLink]="['/clubs', m.clubDomicileId]">
+              <img [src]="logo(m.domicile)" alt="" />
+              <span>{{ m.clubDomicileNom }}</span>
+            </a>
+            <span class="selection__score">
+              @if (estTermine(m)) {
+                <b [class.perdant]="vainqueur(m) === 'exterieur'">{{ m.scoreDomicile }}</b>
+                <i>–</i>
+                <b [class.perdant]="vainqueur(m) === 'domicile'">{{ m.scoreExterieur }}</b>
+              } @else {
+                <span class="selection__heure">{{ m.date | date: "HH:mm" }}</span>
+              }
+            </span>
+            <a class="selection__club" [routerLink]="['/clubs', m.clubExterieurId]">
+              <img [src]="logo(m.exterieur)" alt="" />
+              <span>{{ m.clubExterieurNom }}</span>
+            </a>
+          </div>
+
+          <ul class="selection__infos">
+            @if (m.domicile; as domicile) {
+              <li><mat-icon>stadium</mat-icon>{{ domicile.stade }} · {{ domicile.ville }}</li>
+            }
+            <li><mat-icon>emoji_events</mat-icon>Mini-saison {{ m.miniSaison }} · Journée {{ m.journee }}</li>
+            @if (mvp(m); as nomMvp) {
+              <li><mat-icon>star</mat-icon>MVP : {{ nomMvp }}</li>
+            }
+          </ul>
+        </section>
+      }
+    </aside>
+  </div>
+</section>

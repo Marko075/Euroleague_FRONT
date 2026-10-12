@@ -1,22 +1,118 @@
-@if (joueurs$ | async; as joueurs) {
-<div class="liste">
-  @for (joueur of joueurs; track joueur.id) {
-  <mat-card class="carte">
-    <div class="photo">
-      <img
-        [src]="'assets/joueurs/' + joueur.nom.toLowerCase() + '_' + joueur.prenom.toLowerCase() + '.png'"
-        [alt]="joueur.prenom + ' ' + joueur.nom"
-      >
+<entete-page
+  surTitre="EuroLeague · Effectifs"
+  titre="Les joueurs"
+  accent="de la saison"
+  description="Filtrez par club ou par poste, puis cliquez sur un joueur pour voir ses statistiques."
+></entete-page>
+
+<div class="contenu">
+  @if (joueurs$ | async; as joueurs) {
+    <div class="filtres">
+      <div class="filtres__clubs" role="group" aria-label="Filtrer par club">
+        <button type="button" class="puce" [class.puce--active]="clubFiltre === null" (click)="clubFiltre = null">
+          Tous les clubs
+        </button>
+        @for (club of clubs(joueurs); track club.id) {
+          <button
+            type="button"
+            class="puce"
+            [class.puce--active]="clubFiltre === club.id"
+            [ngStyle]="themeClub(club)"
+            [attr.aria-pressed]="clubFiltre === club.id"
+            (click)="clubFiltre = club.id"
+          >
+            <img [src]="logoClub(club)" alt="" />{{ club.code ?? club.nom }}
+          </button>
+        }
+      </div>
+
+      <div class="filtres__ligne">
+        <div class="filtres__postes" role="group" aria-label="Filtrer par poste">
+          <button
+            type="button"
+            class="puce puce--petite"
+            [class.puce--active]="posteFiltre === null"
+            (click)="posteFiltre = null"
+          >
+            Tous
+          </button>
+          @for (poste of postes; track poste.code) {
+            <button
+              type="button"
+              class="puce puce--petite"
+              [class.puce--active]="posteFiltre === poste.code"
+              [attr.aria-pressed]="posteFiltre === poste.code"
+              [title]="poste.libelle"
+              (click)="posteFiltre = poste.code"
+            >
+              {{ poste.code }}
+            </button>
+          }
+        </div>
+        <label class="recherche">
+          <mat-icon aria-hidden="true">search</mat-icon>
+          <input
+            type="search"
+            placeholder="Rechercher un joueur"
+            aria-label="Rechercher un joueur"
+            [value]="recherche"
+            (input)="rechercher($event)"
+          />
+        </label>
+        <span class="compteur">{{ filtrer(joueurs).length }} joueur{{ filtrer(joueurs).length > 1 ? "s" : "" }}</span>
+      </div>
     </div>
-    <div class="infos">
-      <h2>{{ joueur.prenom }} {{ joueur.nom }}</h2>
-      <p><strong>Club :</strong> {{ joueur.club.nom }}</p>
-      <p><strong>Poste :</strong> {{ libellePoste(joueur.poste) }}</p>
-      <p><strong>Nationalité :</strong> {{ joueur.nationalite }}</p>
-      <p><strong>Taille :</strong> {{ joueur.taille }} cm</p>
-      <p><strong>Date de naissance :</strong> {{ joueur.anniversaire | date: "dd/MM/yyyy" }}</p>
+
+    <div class="grille">
+      @for (joueur of filtrer(joueurs); track joueur.id; let i = $index) {
+        <a
+          class="carte"
+          routerLink="/statistiques"
+          [queryParams]="{ joueur: joueur.id }"
+          [ngStyle]="styleCarte(joueur, i)"
+          [attr.aria-label]="'Statistiques de ' + joueur.prenom + ' ' + joueur.nom"
+        >
+          <span class="carte__fond" aria-hidden="true"></span>
+          <span class="carte__haut">
+            <span class="carte__poste" [title]="libellePoste(joueur.poste)">{{ joueur.poste }}</span>
+            <img class="carte__logo" [src]="logoClub(joueur.club)" [alt]="joueur.club.nom" />
+            <img
+              class="carte__drapeau"
+              [src]="drapeau(joueur.nationalite)"
+              [alt]="joueur.nationalite"
+              [title]="joueur.nationalite"
+            />
+          </span>
+
+          @if (!photosManquantes.has(joueur.id)) {
+            <img
+              class="carte__photo"
+              [src]="photoJoueur(joueur)"
+              alt=""
+              loading="lazy"
+              (error)="photosManquantes.add(joueur.id)"
+            />
+          } @else {
+            <span class="carte__initiales" aria-hidden="true">{{ initiales(joueur) }}</span>
+          }
+
+          <span class="carte__prenom">{{ joueur.prenom }}</span>
+          <span class="carte__nom">{{ joueur.nom }}</span>
+          <span class="carte__infos">
+            <span>{{ libellePoste(joueur.poste) }}</span>
+            @if (joueur.taille) {
+              <span>{{ joueur.taille / 100 | number: "1.2-2" : "fr" }} m</span>
+            }
+            @if (age(joueur); as ans) {
+              <span>{{ ans }} ans</span>
+            }
+          </span>
+        </a>
+      } @empty {
+        <p class="vide">Aucun joueur ne correspond à ces filtres.</p>
+      }
     </div>
-  </mat-card>
+  } @else {
+    <p class="chargement">Chargement des joueurs…</p>
   }
 </div>
-}

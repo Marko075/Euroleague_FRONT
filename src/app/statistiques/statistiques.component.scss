@@ -1,289 +1,300 @@
+// Page Statistiques : filtres de période, recherche de joueur, puis sa fiche aux couleurs du club
+@use "arene" as a;
 
-/* Page principale */
-.page-statistiques {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 32px 24px;
-  color: #1f2937;
+:host {
+  @include a.page;
 }
 
-/* En-tête */
-.entete {
-  margin-bottom: 32px;
-
-  h1 {
-    margin: 0 0 10px;
-    font-size: 30px;
-    font-weight: 700;
-    color: #111827;
-  }
-
-  p {
-    margin: 0;
-    color: #6b7280;
-    font-size: 15px;
-    line-height: 1.6;
-  }
+.contenu {
+  @include a.contenu;
 }
 
-/* Zone des filtres */
+// ---------- Filtres ----------
 .filtres {
+  @include a.carte;
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 24px;
-  align-items: start;
-  margin-bottom: 32px;
-  padding: 24px;
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
-  border-radius: 14px;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+  grid-template-columns: repeat(2, minmax(0, 1fr)) minmax(0, 1.4fr);
+  gap: 16px 18px;
+  margin-bottom: 28px;
+  padding: 18px;
 }
 
-/* Chaque filtre */
 .filtre {
+  position: relative;
   display: flex;
   flex-direction: column;
-  gap: 9px;
-  min-width: 0;
+  gap: 6px;
 
   label {
-    font-size: 14px;
-    font-weight: 600;
-    color: #374151;
-  }
-
-  select,
-  input {
-    box-sizing: border-box;
-    width: 100%;
-    min-height: 44px;
-    padding: 10px 12px;
-    border: 1px solid #d1d5db;
-    border-radius: 8px;
-    background: #ffffff;
-    color: #1f2937;
-    font: inherit;
-    font-size: 14px;
-    outline: none;
-    transition:
-      border-color 0.2s ease,
-      box-shadow 0.2s ease;
+    @include a.etiquette(12px);
+    color: a.$doux;
   }
 
   select {
-    cursor: pointer;
+    @include a.select;
   }
 
-  select:disabled {
-    cursor: not-allowed;
-    background: #f3f4f6;
-    color: #9ca3af;
-  }
-
-  input::placeholder {
-    color: #9ca3af;
-  }
-
-  select:focus,
-  input:focus {
-    border-color: #2563eb;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+  input {
+    @include a.champ;
   }
 
   small {
-    color: #6b7280;
     font-size: 12px;
-    line-height: 1.5;
+    line-height: 1.4;
+    color: a.$doux;
   }
-}
-
-/* Recherche et liste déroulante des joueurs */
-.filtre-joueur {
-  position: relative;
 }
 
 .liste-joueurs {
   position: absolute;
-  top: calc(100% + 4px);
-  left: 0;
+  top: calc(100% + 6px);
   right: 0;
-  z-index: 1000;
-  max-height: 280px;
+  left: 0;
+  z-index: 10;
+  max-height: 340px;
+  padding: 6px;
   overflow-y: auto;
-  background: #ffffff;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 12px;
+  background: #120e33;
+  box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.7);
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
 }
 
-/* Une option de joueur */
 .option-joueur {
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 4px;
+  align-items: center;
+  gap: 12px;
   width: 100%;
-  padding: 12px 14px;
-  border: none;
-  border-bottom: 1px solid #f3f4f6;
-  background: #ffffff;
-  color: #1f2937;
+  padding: 7px 8px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #fff;
   text-align: left;
   cursor: pointer;
-  transition: background 0.15s ease;
-
-  &:last-child {
-    border-bottom: none;
-  }
 
   &:hover,
   &:focus-visible {
-    background: #eff6ff;
     outline: none;
+    background: rgba(255, 107, 0, 0.16);
   }
-}
 
-.nom-joueur {
-  font-size: 14px;
-  font-weight: 600;
-}
+  .portrait {
+    position: relative;
+    flex: none;
+    width: 36px;
+    height: 36px;
+    overflow: hidden;
+    border-radius: 50%;
+    background: linear-gradient(160deg, var(--c1, #3a2f8f), color-mix(in srgb, var(--c1, #3a2f8f) 40%, #05041a));
 
-.club-joueur {
-  color: #6b7280;
-  font-size: 12px;
+    img {
+      position: absolute;
+      top: -12%;
+      left: -100%;
+      width: 300%;
+      max-width: none;
+    }
+  }
+
+  .nom-joueur {
+    flex: 1;
+    min-width: 0;
+    font-weight: 600;
+  }
+
+  .club-joueur {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: a.$doux;
+
+    img {
+      width: 18px;
+      height: 18px;
+      object-fit: contain;
+    }
+  }
 }
 
 .aucun-joueur {
-  padding: 14px;
-  color: #6b7280;
+  padding: 12px;
+  color: a.$doux;
   font-size: 14px;
-  text-align: center;
 }
 
-/* Messages de chargement et d'information */
+// ---------- Messages ----------
 .message {
-  margin: 24px 0;
-  padding: 20px;
-  border: 1px solid #e5e7eb;
-  border-radius: 10px;
-  background: #f9fafb;
-  color: #4b5563;
-  font-size: 14px;
-  text-align: center;
-}
-
-.chargement {
-  border-color: #bfdbfe;
-  background: #eff6ff;
-  color: #1d4ed8;
-}
-
-.erreur {
-  border-color: #fecaca;
-  background: #fef2f2;
-  color: #b91c1c;
-}
-
-/* Carte des statistiques du joueur */
-.carte-statistiques {
-  padding: 28px;
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
-  border-radius: 14px;
-  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.05);
-}
-
-/* Identité du joueur */
-.entete-joueur {
-  display: flex;
-  align-items: center;
-  gap: 24px;
-  padding-bottom: 24px;
-  border-bottom: 1px solid #e5e7eb;
-}
-
-.photo-joueur {
-  flex-shrink: 0;
-  width: 110px;
-  height: 130px;
-  object-fit: cover;
-  object-position: center top;
-  border-radius: 10px;
-  background: #f3f4f6;
-}
-
-.identite-joueur {
-  h2 {
-    margin: 0 0 10px;
-    color: #111827;
-    font-size: 24px;
-    font-weight: 700;
-  }
-
-  p {
-    margin: 6px 0;
-    color: #6b7280;
-    font-size: 14px;
-  }
-}
-
-/* Période sélectionnée */
-.resume-periode {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin: 24px 0;
-  color: #4b5563;
-  font-size: 14px;
-  font-weight: 500;
-}
-
-/* Grille des statistiques */
-.grille-statistiques {
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 16px;
-}
-
-/* Une statistique */
-.statistique {
+  @include a.carte;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
   gap: 10px;
-  min-height: 120px;
-  padding: 20px 12px;
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  background: #f9fafb;
+  padding: 48px 20px;
+  color: a.$doux;
+  font-size: 16px;
   text-align: center;
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
 
-  &:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+  mat-icon {
+    width: 46px;
+    height: 46px;
+    font-size: 46px;
+    color: a.$orange;
+  }
+
+  &.erreur {
+    color: #ffa3c6;
+
+    mat-icon {
+      color: a.$rose;
+    }
   }
 }
 
-.valeur {
-  color: #1d4ed8;
-  font-size: 30px;
-  font-weight: 800;
-  line-height: 1.2;
+// ---------- Fiche du joueur ----------
+.carte-statistiques {
+  display: grid;
+  grid-template-columns: minmax(260px, 340px) minmax(0, 1fr);
+  gap: 22px;
+  animation: entree 0.6s a.$ease both;
 }
 
-.libelle {
-  color: #6b7280;
-  font-size: 13px;
-  font-weight: 500;
+.joueur {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  min-height: 420px;
+  padding: 22px;
+  overflow: hidden;
+  border-radius: 18px;
+  background: radial-gradient(circle at 70% 20%, color-mix(in srgb, var(--c2, #fff) 30%, transparent), transparent 55%),
+    linear-gradient(165deg, var(--c1, #3a2f8f), color-mix(in srgb, var(--c1, #3a2f8f) 35%, #05041a) 80%);
+  box-shadow: 0 26px 50px -26px var(--accent, a.$violet);
+
+  &::before {
+    content: "";
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: -1;
+    height: 55%;
+    background: linear-gradient(0deg, rgba(5, 4, 20, 0.94) 10%, transparent);
+  }
+
+  &__photo {
+    position: absolute;
+    bottom: 60px;
+    left: 50%;
+    z-index: -2;
+    height: 82%;
+    translate: -50% 0;
+    filter: drop-shadow(0 16px 26px rgba(0, 0, 0, 0.5));
+  }
+
+  &__logo {
+    position: absolute;
+    top: 18px;
+    left: 18px;
+    width: 52px;
+    height: 52px;
+    object-fit: contain;
+    filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.45));
+  }
+
+  &__periode {
+    @include a.etiquette(12px);
+    color: rgba(255, 255, 255, 0.8);
+  }
+
+  h2 {
+    margin: 6px 0 0;
+    font-family: a.$titre;
+    font-size: 40px;
+    font-weight: 900;
+    line-height: 0.9;
+    text-transform: uppercase;
+
+    small {
+      display: block;
+      font-family: a.$etroit;
+      font-size: 18px;
+      font-weight: 600;
+      text-transform: none;
+      opacity: 0.85;
+    }
+  }
+
+  &__club {
+    margin: 8px 0 0;
+    font-size: 15px;
+    color: rgba(255, 255, 255, 0.82);
+  }
 }
 
-/* Tablettes */
-@media (max-width: 900px) {
+.grille-statistiques {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  align-content: start;
+}
+
+.statistique {
+  @include a.carte;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 20px;
+  @include a.apparition(60ms);
+
+  mat-icon {
+    margin-bottom: 6px;
+    color: a.$orange;
+  }
+
+  .valeur {
+    font-family: a.$titre;
+    font-size: 54px;
+    font-weight: 900;
+    line-height: 0.9;
+  }
+
+  .libelle {
+    @include a.etiquette(13px);
+    color: a.$doux;
+  }
+
+  .moyenne {
+    margin-top: 6px;
+    font-size: 14px;
+    color: a.$menthe;
+  }
+
+  // la tuile MVP occupe deux colonnes : la grille de cinq tuiles reste pleine
+  &--mvp {
+    grid-column: span 2;
+    background: linear-gradient(160deg, rgba(255, 210, 63, 0.18), rgba(255, 210, 63, 0.04));
+
+    mat-icon,
+    .valeur {
+      color: a.$or;
+    }
+  }
+}
+
+@keyframes entree {
+  from {
+    opacity: 0;
+    translate: 0 20px;
+  }
+}
+
+@media (max-width: 960px) {
   .filtres {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -292,64 +303,25 @@
     grid-column: 1 / -1;
   }
 
-  .grille-statistiques {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+  .carte-statistiques {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .joueur {
+    min-height: 380px;
   }
 }
 
-/* Téléphones */
-@media (max-width: 600px) {
-  .page-statistiques {
-    padding: 20px 14px;
-  }
-
-  .entete {
-    margin-bottom: 24px;
-
-    h1 {
-      font-size: 24px;
-    }
-  }
-
+@media (max-width: 560px) {
   .filtres {
-    grid-template-columns: 1fr;
-    gap: 20px;
-    padding: 18px;
-  }
-
-  .filtre-joueur {
-    grid-column: auto;
-  }
-
-  .carte-statistiques {
-    padding: 18px;
-  }
-
-  .entete-joueur {
-    align-items: flex-start;
-    gap: 16px;
-  }
-
-  .photo-joueur {
-    width: 85px;
-    height: 105px;
-  }
-
-  .identite-joueur h2 {
-    font-size: 19px;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .grille-statistiques {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 12px;
   }
 
-  .statistique {
-    min-height: 100px;
-    padding: 14px 8px;
-  }
-
-  .valeur {
-    font-size: 26px;
+  .statistique .valeur {
+    font-size: 42px;
   }
 }

@@ -1,0 +1,25 @@
+<header class="entete">
+  <svg class="entete__ballon" viewBox="0 0 200 200" aria-hidden="true">
+    <circle cx="100" cy="100" r="96" />
+    <path d="M100 4v192M4 100h192" />
+    <path d="M33 32c22 18 34 42 34 68s-12 50-34 68M167 32c-22 18-34 42-34 68s12 50 34 68" />
+  </svg>
+
+  <div class="entete__contenu">
+    <div>
+      @if (surTitre) {
+        <p class="entete__sur-titre"><span class="pastille" aria-hidden="true"></span>{{ surTitre }}</p>
+      }
+      <h1>
+        {{ titre }}
+        @if (accent) {
+          <span>{{ accent }}</span>
+        }
+      </h1>
+      @if (description) {
+        <p class="entete__description">{{ description }}</p>
+      }
+    </div>
+    <div class="entete__extra"><ng-content></ng-content></div>
+  </div>
+</header>

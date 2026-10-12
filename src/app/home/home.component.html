@@ -1,28 +1,661 @@
-<span class="title">Bonjour à vous !</span>
-<div>
-  <span class="welcome">Bienvenue sur ce super template de code Angular </span>
-  <img src="assets/sun.gif" height="100">
-</div>
-<span class="title">Qu'est ce que vous allez faire pendant ce cours ?</span>
-<div class="card-group">
-  <div class="card">
-    <img class="card-img-top" src="assets/img1.png" alt="Card image cap" />
-    <div class="card-body">
-      <p class="card-text">
-        Une merveilleuse web app from scratch JAVA Spring - Angular
-      </p>
+@if (accueil$ | async; as a) {
+  <!-- ===== Bandeau des scores ===== -->
+  @if (a.bandeau.length) {
+    <div class="bandeau">
+      <span class="bandeau__label"><span class="pastille" aria-hidden="true"></span>Scores</span>
+      <div class="bandeau__piste">
+        <div class="bandeau__defile">
+          @for (copie of [0, 1]; track copie) {
+            <ul class="bandeau__liste" [attr.aria-hidden]="copie === 1 ? 'true' : null">
+              @for (m of a.bandeau; track m.id) {
+                <li class="score" [class.score--a-venir]="!estTermine(m)">
+                  <span class="score__meta">
+                    @if (estTermine(m)) {
+                      Final · MS{{ m.miniSaison }} J{{ m.journee }}
+                    } @else {
+                      {{ m.date | date: "EEE d/MM · HH:mm" : undefined : "fr" }}
+                    }
+                  </span>
+                  <span class="score__ligne" [class.score__ligne--gagnant]="vainqueur(m) === 'domicile'">
+                    <img [src]="logo(m.domicile)" alt="" />
+                    {{ sigle(m.domicile, m.clubDomicileNom) }}
+                    <span class="score__pts">{{ m.scoreDomicile }}</span>
+                  </span>
+                  <span class="score__ligne" [class.score__ligne--gagnant]="vainqueur(m) === 'exterieur'">
+                    <img [src]="logo(m.exterieur)" alt="" />
+                    {{ sigle(m.exterieur, m.clubExterieurNom) }}
+                    <span class="score__pts">{{ m.scoreExterieur }}</span>
+                  </span>
+                </li>
+              }
+            </ul>
+          }
+        </div>
+      </div>
     </div>
-  </div>
-  <div class="card">
-    <img class="card-img-top" src="assets/img2.png" alt="Card image cap" />
-    <div class="card-body">
-      <p class="card-text">Avec une super team de 3 ou 4 personnes</p>
+  }
+
+  <!-- ===== Hub : le fond, et les tuiles devant ===== -->
+  <section class="hub">
+    <div class="hub__decor" aria-hidden="true">
+      @if (photoFond(a); as photo) {
+        <img class="hub__photo" [src]="photo" alt="" />
+      }
+      <span class="hub__eclat hub__eclat--1"></span>
+      <span class="hub__eclat hub__eclat--2"></span>
+      <svg class="hub__ballon" viewBox="0 0 200 200">
+        <circle cx="100" cy="100" r="96" />
+        <path d="M100 4v192M4 100h192" />
+        <path d="M33 32c22 18 34 42 34 68s-12 50-34 68M167 32c-22 18-34 42-34 68s12 50 34 68" />
+      </svg>
     </div>
-  </div>
-  <div class="card">
-    <img class="card-img-top" src="assets/img3.png" alt="Card image cap" />
-    <div class="card-body">
-      <p class="card-text">Encadrés par un intervenant prêt à dégainer sa magie noire pour vous aider</p>
+
+    <div class="hub__contenu">
+      <header class="hub__entete">
+        <div>
+          <p class="kicker">
+            <span class="pastille" aria-hidden="true"></span>EuroLeague · {{ a.saison ?? "Saison en cours" }}
+          </p>
+          <h1>Bienvenue <span>dans l'arène</span></h1>
+          <p class="hub__accroche">
+            Résultats, calendrier, statistiques et vidéos : toute la compétition au même endroit.
+          </p>
+        </div>
+        <dl class="hub__chiffres">
+          <div>
+            <dt>Clubs</dt>
+            <dd>{{ a.chiffres.clubs }}</dd>
+          </div>
+          <div>
+            <dt>Joueurs</dt>
+            <dd>{{ a.chiffres.joueurs }}</dd>
+          </div>
+          <div>
+            <dt>Matchs joués</dt>
+            <dd>
+              {{ a.chiffres.joues }}<small>/{{ a.chiffres.total }}</small>
+            </dd>
+          </div>
+          <div>
+            <dt>Places en salle</dt>
+            <dd>{{ a.chiffres.places | number: "1.0-0" : "fr" }}</dd>
+          </div>
+        </dl>
+      </header>
+
+      <div class="hub__grille">
+        <!-- Prochain match : les deux stars face à face -->
+        @if (a.prochain; as p) {
+          <a
+            class="tuile tuile--duel"
+            routerLink="/calendrier"
+            [ngStyle]="couleursAffiche(p)"
+            style="--i: 0"
+            [attr.aria-label]="
+              'Prochain match : ' + p.clubDomicileNom + ' contre ' + p.clubExterieurNom + '. Ouvrir le calendrier'
+            "
+          >
+            <span class="tuile__fond" aria-hidden="true"><span class="duel__diagonale"></span></span>
+            <span class="tuile__scene" aria-hidden="true">
+              @if (a.stars.domicile; as star) {
+                <img class="duel__joueur duel__joueur--domicile" [src]="photo(star)" alt="" />
+              }
+              @if (a.stars.exterieur; as star) {
+                <img class="duel__joueur duel__joueur--exterieur" [src]="photo(star)" alt="" />
+              }
+            </span>
+            <span class="tuile__voile" aria-hidden="true"></span>
+
+            <span class="tuile__etiquette">
+              <mat-icon>bolt</mat-icon>Prochain match · MS{{ p.miniSaison }} J{{ p.journee }}
+            </span>
+            <span class="duel__vs" aria-hidden="true">VS</span>
+
+            <span class="duel__bas">
+              <span class="duel__equipes">
+                <span class="duel__equipe">
+                  <img [src]="logo(p.domicile)" alt="" />
+                  <span>
+                    {{ p.clubDomicileNom }}
+                    @if (a.stars.domicile; as star) {
+                      <small
+                        >★ {{ star.prenom }} {{ star.nom }} ·
+                        {{ star.moyennes.points | number: "1.1-1" : "fr" }} pts</small
+                      >
+                    }
+                  </span>
+                </span>
+                <span class="duel__equipe duel__equipe--exterieur">
+                  <img [src]="logo(p.exterieur)" alt="" />
+                  <span>
+                    {{ p.clubExterieurNom }}
+                    @if (a.stars.exterieur; as star) {
+                      <small
+                        >★ {{ star.prenom }} {{ star.nom }} ·
+                        {{ star.moyennes.points | number: "1.1-1" : "fr" }} pts</small
+                      >
+                    }
+                  </span>
+                </span>
+              </span>
+
+              @if (decompte$ | async; as d) {
+                @if (d.termine) {
+                  <span class="decompte decompte--termine">C'est l'heure du match !</span>
+                } @else {
+                  <span class="decompte">
+                    <span class="decompte__bloc"
+                      ><b>{{ d.jours }}</b
+                      ><small>jours</small></span
+                    >
+                    <span class="decompte__bloc"
+                      ><b>{{ d.heures }}</b
+                      ><small>heures</small></span
+                    >
+                    <span class="decompte__bloc"
+                      ><b>{{ d.minutes }}</b
+                      ><small>min</small></span
+                    >
+                    <span class="decompte__bloc"
+                      ><b>{{ d.secondes }}</b
+                      ><small>sec</small></span
+                    >
+                  </span>
+                }
+              }
+              <span class="duel__infos">
+                {{ p.date | date: "EEEE d MMMM · HH:mm" : undefined : "fr" }}
+                @if (p.domicile) {
+                  · {{ p.domicile.stade }}
+                }
+              </span>
+            </span>
+          </a>
+        } @else {
+          <!-- Plus aucun match à jouer (tout a été simulé) : place au leader -->
+          <a class="tuile tuile--duel tuile--fin" routerLink="/calendrier" style="--i: 0">
+            <span class="tuile__fond" aria-hidden="true"></span>
+            <span class="tuile__etiquette"><mat-icon>emoji_events</mat-icon>Tous les matchs sont joués</span>
+            @if (a.leader; as leader) {
+              <img class="fin__logo" [src]="logo(leader.club)" alt="" />
+              <span class="tuile__bas">
+                <span class="tuile__titre">{{ leader.ligne.clubNom }}</span>
+                <span class="tuile__sous-titre">
+                  En tête de la mini-saison {{ leader.miniSaison }} · {{ leader.ligne.victoires }} V –
+                  {{ leader.ligne.defaites }} D
+                </span>
+                <span class="tuile__cta">Rejouer depuis le calendrier <mat-icon>arrow_forward</mat-icon></span>
+              </span>
+            }
+          </a>
+        }
+
+        <!-- Roi des MVP -->
+        @if (a.roiMvp; as mvp) {
+          <a class="tuile tuile--mvp" routerLink="/joueurs" [ngStyle]="theme(mvp.club)" style="--i: 1">
+            <span class="tuile__fond" aria-hidden="true"
+              ><span class="mvp__nombre">{{ mvp.nombre }}</span></span
+            >
+            <span class="tuile__scene" aria-hidden="true"><img class="mvp__photo" [src]="photo(mvp)" alt="" /></span>
+            <span class="tuile__voile" aria-hidden="true"></span>
+            <span class="tuile__etiquette"><mat-icon>star</mat-icon>Roi des MVP</span>
+            <span class="tuile__bas">
+              <span class="tuile__titre">{{ mvp.prenom }}<br />{{ mvp.nom }}</span>
+              <span class="tuile__sous-titre">{{ mvp.nombre }} fois MVP · {{ mvp.club?.nom }}</span>
+            </span>
+          </a>
+        }
+
+        <!-- Dernier résultat -->
+        @if (a.dernier; as d) {
+          <a class="tuile tuile--resultat" routerLink="/matchs" [ngStyle]="couleursAffiche(d.match)" style="--i: 2">
+            <span class="tuile__fond" aria-hidden="true"></span>
+            <span class="tuile__etiquette"><mat-icon>scoreboard</mat-icon>Dernier match · Final</span>
+            <span class="resultat">
+              <span class="resultat__equipe">
+                <img [src]="logo(d.match.domicile)" alt="" />
+                {{ sigle(d.match.domicile, d.match.clubDomicileNom) }}
+              </span>
+              <span class="resultat__score">
+                <b [class.perdant]="vainqueur(d.match) === 'exterieur'">{{ d.match.scoreDomicile }}</b>
+                <i>–</i>
+                <b [class.perdant]="vainqueur(d.match) === 'domicile'">{{ d.match.scoreExterieur }}</b>
+              </span>
+              <span class="resultat__equipe">
+                <img [src]="logo(d.match.exterieur)" alt="" />
+                {{ sigle(d.match.exterieur, d.match.clubExterieurNom) }}
+              </span>
+            </span>
+            <span class="tuile__bas">
+              @if (d.mvp; as mvp) {
+                <span class="tuile__sous-titre">
+                  <mat-icon>star</mat-icon>MVP : {{ mvp.prenom }} {{ mvp.nom }} · {{ mvp.points }} pts
+                </span>
+              }
+              <span class="tuile__cta">Feuilles de match <mat-icon>arrow_forward</mat-icon></span>
+            </span>
+          </a>
+        }
+
+        <!-- Cette semaine, en mode calendrier FIFA -->
+        <a class="tuile tuile--calendrier" routerLink="/calendrier" style="--i: 3">
+          <span class="tuile__fond" aria-hidden="true">
+            <svg class="tuile__filigrane" viewBox="0 0 200 200">
+              <circle cx="100" cy="100" r="96" />
+              <path d="M100 4v192M4 100h192" />
+              <path d="M33 32c22 18 34 42 34 68s-12 50-34 68M167 32c-22 18-34 42-34 68s12 50 34 68" />
+            </svg>
+          </span>
+          <span class="tuile__etiquette"><mat-icon>calendar_month</mat-icon>Cette semaine</span>
+          <ol class="semaine">
+            @for (j of a.semaine; track j.date.getTime()) {
+              <li class="jour" [class.jour--match]="!!j.match" [class.jour--aujourdhui]="j.aujourdhui">
+                <span class="jour__nom">{{ j.date | date: "EEE" : undefined : "fr" }}</span>
+                <span class="jour__num">{{ j.date | date: "d" }}</span>
+                @if (j.match; as m) {
+                  <span class="jour__logos">
+                    <img [src]="logo(m.domicile)" alt="" />
+                    <img [src]="logo(m.exterieur)" alt="" />
+                  </span>
+                  <span class="jour__heure">
+                    @if (estTermine(m)) {
+                      {{ m.scoreDomicile }}-{{ m.scoreExterieur }}
+                    } @else {
+                      {{ m.date | date: "HH:mm" }}
+                    }
+                  </span>
+                } @else if (j.aujourdhui) {
+                  <span class="jour__heure">Auj.</span>
+                }
+              </li>
+            }
+          </ol>
+          <span class="tuile__bas tuile__bas--ligne">
+            <span class="tuile__titre">Calendrier</span>
+            <span class="tuile__cta">Toute la saison <mat-icon>arrow_forward</mat-icon></span>
+          </span>
+        </a>
+
+        <!-- Raccourcis -->
+        <a class="tuile tuile--clubs" routerLink="/clubs" style="--i: 4">
+          <span class="tuile__fond" aria-hidden="true"></span>
+          <span class="eventail" aria-hidden="true">
+            @for (club of a.clubs; track club.id; let i = $index) {
+              <img [src]="logo(club)" alt="" [ngStyle]="{ '--n': i - (a.clubs.length - 1) / 2 }" />
+            }
+          </span>
+          <span class="tuile__bas">
+            <span class="tuile__titre">Les clubs</span>
+            <span class="tuile__sous-titre">{{ a.clubs.length }} institutions</span>
+          </span>
+        </a>
+
+        <a class="tuile tuile--joueurs" routerLink="/joueurs" style="--i: 5">
+          <span class="tuile__fond" aria-hidden="true"></span>
+          <span class="tuile__scene" aria-hidden="true">
+            @for (s of a.leaders.points.slice(0, 3); track s.joueurId) {
+              <img class="trio" [src]="photo(s)" alt="" />
+            }
+          </span>
+          <span class="tuile__voile" aria-hidden="true"></span>
+          <span class="tuile__bas">
+            <span class="tuile__titre">Les joueurs</span>
+            <span class="tuile__sous-titre">{{ a.chiffres.joueurs }} joueurs</span>
+          </span>
+        </a>
+
+        <a class="tuile tuile--classement" routerLink="/classements" style="--i: 6">
+          <span class="tuile__fond" aria-hidden="true"></span>
+          <span class="podium" aria-hidden="true"><span></span><span></span><span></span></span>
+          <span class="tuile__bas">
+            <span class="tuile__titre">Classements</span>
+            @if (classementAffiche(a)?.lignes?.[0]; as leader) {
+              <span class="tuile__sous-titre">Leader : {{ leader.clubNom }}</span>
+            }
+          </span>
+        </a>
+
+        <a class="tuile tuile--tv" href="#tv" (click)="defilerVers($event, tv)" style="--i: 7">
+          <span class="tuile__fond" aria-hidden="true"><img [src]="miniature(videos[0], 'mqdefault')" alt="" /></span>
+          <span class="tuile__voile" aria-hidden="true"></span>
+          <span class="tv-play" aria-hidden="true"><mat-icon>play_arrow</mat-icon></span>
+          <span class="tuile__bas">
+            <span class="tuile__titre">EuroLeague TV</span>
+            <span class="tuile__sous-titre">{{ videos.length }} vidéos</span>
+          </span>
+        </a>
+      </div>
     </div>
+  </section>
+
+  <!-- ===== Trois colonnes : stats, actualités, classement ===== -->
+  <div class="corps">
+    <aside class="corps__gauche">
+      <section class="carte">
+        <h2 class="titre-section">Leaders de la saison</h2>
+        <div class="onglets" role="tablist" aria-label="Catégorie de statistiques">
+          @for (c of categories; track c.cle) {
+            <button
+              type="button"
+              role="tab"
+              class="onglet"
+              [class.onglet--actif]="categorie === c.cle"
+              [attr.aria-selected]="categorie === c.cle"
+              (click)="categorie = c.cle"
+            >
+              {{ c.court }}
+            </button>
+          }
+        </div>
+
+        @for (s of a.leaders[categorie]; track s.joueurId; let i = $index) {
+          @if (i === 0) {
+            <a class="leader-un" routerLink="/joueurs" [ngStyle]="theme(s.club)">
+              <img class="leader-un__photo" [src]="photo(s)" alt="" />
+              <span class="leader-un__rang">1</span>
+              <span class="leader-un__valeur">{{ s.moyennes[categorie] | number: "1.1-1" : "fr" }}</span>
+              <span class="leader-un__unite">{{ libelleCategorie }} / match</span>
+              <span class="leader-un__nom"
+                >{{ s.prenom }} <b>{{ s.nom }}</b></span
+              >
+            </a>
+          } @else {
+            <div class="leader">
+              <span class="leader__rang">{{ i + 1 }}</span>
+              <span class="portrait" [ngStyle]="theme(s.club)"><img [src]="photo(s)" alt="" /></span>
+              <span class="leader__nom">
+                {{ s.prenom.charAt(0) }}. {{ s.nom }}
+                <small>{{ s.club?.nom }}</small>
+              </span>
+              <span class="leader__valeur">{{ s.moyennes[categorie] | number: "1.1-1" : "fr" }}</span>
+            </div>
+          }
+        } @empty {
+          <p class="vide">Pas encore de statistiques.</p>
+        }
+      </section>
+
+      @if (a.records.length) {
+        <section class="carte">
+          <h2 class="titre-section">Records de la saison</h2>
+          <ul class="records">
+            @for (r of a.records; track r.libelle) {
+              <li class="record">
+                <mat-icon class="record__icone">{{ r.icone }}</mat-icon>
+                <span class="record__libelle">{{ r.libelle }}</span>
+                <span class="record__valeur">{{ r.valeur }}</span>
+                <span class="record__detail">{{ r.detail }}</span>
+              </li>
+            }
+          </ul>
+        </section>
+      }
+    </aside>
+
+    <div class="corps__centre">
+      <header class="actus__entete">
+        <h2 class="titre-section">À la une</h2>
+        <span class="actus__date">{{ maintenant | date: "EEEE d MMMM" : undefined : "fr" }}</span>
+      </header>
+
+      @if (a.une; as une) {
+        <a class="actu-une" [routerLink]="une.lien" [ngStyle]="theme(une.club)">
+          <span class="actu-une__visuel" aria-hidden="true">
+            @if (une.image) {
+              <img [src]="une.image" alt="" />
+            }
+          </span>
+          <span class="actu-une__texte">
+            <span class="tag">{{ une.tag }}</span>
+            <span class="actu-une__titre">{{ une.titre }}</span>
+            <span class="actu-une__extrait">{{ une.extrait }}</span>
+            <time>{{ une.date | date: "d MMMM yyyy" : undefined : "fr" }}</time>
+          </span>
+        </a>
+      }
+
+      <div class="actus__grille">
+        @for (actu of a.actualites; track actu.titre) {
+          <a class="actu" [routerLink]="actu.lien" [ngStyle]="theme(actu.club)">
+            <span class="actu__visuel" [class.actu__visuel--portrait]="actu.portrait">
+              @if (actu.image) {
+                <img [src]="actu.image" alt="" loading="lazy" />
+              }
+              <span class="tag">{{ actu.tag }}</span>
+            </span>
+            <span class="actu__titre">{{ actu.titre }}</span>
+            <span class="actu__extrait">{{ actu.extrait }}</span>
+            <time class="actu__date">{{ actu.date | date: "d MMMM" : undefined : "fr" }}</time>
+          </a>
+        }
+      </div>
+    </div>
+
+    <aside class="corps__droite">
+      <section class="carte">
+        <header class="carte__entete">
+          <h2 class="titre-section">Classement</h2>
+          @if (classementAffiche(a); as c) {
+            <div class="selecteur">
+              <button
+                type="button"
+                (click)="changerClassement(a, -1)"
+                [disabled]="!peutChangerClassement(a, -1)"
+                aria-label="Mini-saison précédente"
+              >
+                <mat-icon>arrow_left</mat-icon>
+              </button>
+              <span>MS {{ c.miniSaison }}</span>
+              <button
+                type="button"
+                (click)="changerClassement(a, 1)"
+                [disabled]="!peutChangerClassement(a, 1)"
+                aria-label="Mini-saison suivante"
+              >
+                <mat-icon>arrow_right</mat-icon>
+              </button>
+            </div>
+          }
+        </header>
+
+        @if (classementAffiche(a); as c) {
+          <table class="classement">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th class="equipe">Équipe</th>
+                <th title="Victoires">V</th>
+                <th title="Défaites">D</th>
+                <th title="Différentiel de points">+/-</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (l of c.lignes; track l.clubId; let i = $index) {
+                <tr [class.premier]="i === 0">
+                  <td class="rang">{{ l.rang === "equal" ? "=" : l.rang }}</td>
+                  <td class="equipe">
+                    <a [routerLink]="['/clubs', l.clubId]">
+                      <img [src]="logo(a.clubsParId.get(l.clubId))" alt="" />{{ l.clubNom }}
+                    </a>
+                  </td>
+                  <td>{{ l.victoires }}</td>
+                  <td>{{ l.defaites }}</td>
+                  <td class="diff" [class.positif]="l.diff > 0" [class.negatif]="l.diff < 0">
+                    {{ l.diff > 0 ? "+" + l.diff : l.diff }}
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        } @else {
+          <p class="vide">Pas encore de classement.</p>
+        }
+        <a class="lien-fleche" routerLink="/classements">Classement détaillé <mat-icon>arrow_forward</mat-icon></a>
+      </section>
+
+      <section class="carte">
+        <h2 class="titre-section">À venir</h2>
+        <ul class="a-venir">
+          @for (m of a.aVenir; track m.id) {
+            <li>
+              <span class="a-venir__date">
+                <b>{{ m.date | date: "d" }}</b
+                >{{ m.date | date: "MMM" : undefined : "fr" }}
+              </span>
+              <span class="a-venir__affiche">
+                <img [src]="logo(m.domicile)" alt="" />{{ sigle(m.domicile, m.clubDomicileNom) }}
+                <i>vs</i>
+                {{ sigle(m.exterieur, m.clubExterieurNom) }}<img [src]="logo(m.exterieur)" alt="" />
+              </span>
+              <span class="a-venir__heure">{{ m.date | date: "HH:mm" }}</span>
+            </li>
+          } @empty {
+            <li class="vide">Aucun match programmé.</li>
+          }
+        </ul>
+        <a class="lien-fleche" routerLink="/calendrier">Tout le calendrier <mat-icon>arrow_forward</mat-icon></a>
+      </section>
+
+      <a class="billet" routerLink="/calendrier">
+        <span class="billet__haut">
+          <mat-icon>confirmation_number</mat-icon>
+          <span class="billet__kicker">Billetterie</span>
+          <span class="billet__titre">
+            @if (a.prochain) {
+              Vivez la mini-saison {{ a.prochain.miniSaison }} en salle
+            } @else {
+              Vivez la prochaine saison en salle
+            }
+          </span>
+        </span>
+        <span class="billet__bas">
+          <span>Dès <b>15 €</b></span>
+          <span class="billet__cta">Choisir un match <mat-icon>arrow_forward</mat-icon></span>
+        </span>
+      </a>
+    </aside>
   </div>
-</div>
+} @else if (erreur) {
+  <div class="erreur">
+    <mat-icon>wifi_off</mat-icon>
+    <p>
+      Impossible de joindre l'API sur <code>http://localhost:8080</code>.<br />
+      Lancez le back (et la base Docker), puis rechargez la page.
+    </p>
+  </div>
+} @else {
+  <div class="chargement"><span></span><span></span><span></span></div>
+}
+
+<!-- ===== EuroLeague TV (vidéos YouTube officielles) ===== -->
+<section class="tv" id="tv" #tv>
+  <div class="tv__contenu">
+    <header class="tv__entete">
+      <div>
+        <p class="kicker"><span class="pastille" aria-hidden="true"></span>EuroLeague TV</p>
+        <h2>Les images <span>de la semaine</span></h2>
+      </div>
+      <a class="tv__chaine" href="https://www.youtube.com/@euroleague" target="_blank" rel="noopener">
+        Chaîne officielle <mat-icon>open_in_new</mat-icon>
+      </a>
+    </header>
+
+    <div class="tv__grille">
+      <div class="tv__ecran">
+        @if (urlVideo) {
+          <iframe
+            [src]="urlVideo"
+            [title]="video.titre"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowfullscreen
+          ></iframe>
+        } @else {
+          <button type="button" class="tv__affiche" (click)="lire(video)" [attr.aria-label]="'Lire : ' + video.titre">
+            <img [src]="miniature(video, 'maxresdefault')" alt="" />
+            <span class="tv__voile"></span>
+            <span class="tv__play"><mat-icon>play_arrow</mat-icon></span>
+            <span class="tv__legende">
+              <span class="tv__contexte">{{ video.contexte }}</span>
+              <span class="tv__titre">{{ video.titre }}</span>
+            </span>
+          </button>
+        }
+      </div>
+
+      <div class="tv__playlist">
+        <ol>
+          @for (v of videos; track v.id) {
+            <li>
+              <button
+                type="button"
+                class="tv__item"
+                [class.tv__item--actif]="v === video"
+                [attr.aria-current]="v === video ? 'true' : null"
+                (click)="lire(v)"
+              >
+                <span class="tv__vignette">
+                  <img [src]="miniature(v, 'mqdefault')" alt="" loading="lazy" />
+                  <span class="tv__duree">{{ v.duree }}</span>
+                </span>
+                <span class="tv__infos">
+                  <span class="tv__item-titre">{{ v.titre }}</span>
+                  <span class="tv__item-contexte">
+                    @for (code of v.clubs; track code) {
+                      <img [src]="logoCode(code)" alt="" />
+                    }
+                    {{ v.contexte }}
+                  </span>
+                </span>
+              </button>
+            </li>
+          }
+        </ol>
+      </div>
+    </div>
+    <p class="tv__source">
+      Vidéos officielles des chaînes YouTube EuroLeague Basketball et FC Bayern Basketball, lues via
+      youtube-nocookie.com.
+    </p>
+  </div>
+</section>
+
+<!-- ===== Les salles ===== -->
+@if (accueil$ | async; as a) {
+  <section class="salles">
+    <header class="salles__entete">
+      <p class="kicker">Les salles</p>
+      <h2>Là où <span>tout se joue</span></h2>
+    </header>
+    <div class="salles__grille">
+      @for (club of a.clubs; track club.id) {
+        <a class="salle" [routerLink]="['/clubs', club.id]" [ngStyle]="theme(club)">
+          @if (photoStade(club); as photo) {
+            <img class="salle__photo" [src]="photo" alt="" loading="lazy" />
+          }
+          <span class="salle__voile" aria-hidden="true"></span>
+          <img class="salle__logo" [src]="logo(club)" alt="" />
+          <span class="salle__ville">{{ club.ville }} · {{ club.pays }}</span>
+          <span class="salle__nom">{{ club.stade }}</span>
+          @if (club.capaciteStade) {
+            <span class="salle__capacite">
+              <mat-icon>groups</mat-icon>{{ club.capaciteStade | number: "1.0-0" : "fr" }} places
+            </span>
+          }
+        </a>
+      }
+    </div>
+  </section>
+}
+
+<!-- ===== Partenaires (fictifs) ===== -->
+<section class="partenaires" aria-label="Partenaires">
+  <p class="partenaires__titre">Partenaires de la compétition</p>
+  <ul>
+    <li class="partenaire partenaire--takima"><img src="assets/takima-logo.png" alt="" />Takima</li>
+    <li class="partenaire partenaire--1">Volta Energy</li>
+    <li class="partenaire partenaire--2">Aéroligne</li>
+    <li class="partenaire partenaire--3">nordhoop</li>
+    <li class="partenaire partenaire--4">Banque du Parquet</li>
+    <li class="partenaire partenaire--5">Courtside</li>
+  </ul>
+</section>

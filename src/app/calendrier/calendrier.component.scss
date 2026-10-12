@@ -1,0 +1,794 @@
+// Calendrier inspiré du mode carrière de FIFA : fond violet, cases sombres, matchs en bleu
+$titre: "Big Shoulders Display", "Arial Narrow", sans-serif;
+$etroit: "Barlow Condensed", "Arial Narrow", sans-serif;
+$texte: "Barlow", "Helvetica Neue", sans-serif;
+
+$rose: #ff3d8b;
+$menthe: #45f5b0;
+$cyan: #5ad8ff;
+$lavande: #aab6ff;
+$match: linear-gradient(155deg, #4aa8ff 0%, #2f6ff0 100%);
+$match-joue: linear-gradient(155deg, #2f3f9e 0%, #1f2670 100%);
+$bouton-actif: linear-gradient(90deg, #ff2f7d, #ff5b9a);
+
+.page {
+  position: relative;
+  overflow: hidden;
+  min-height: calc(100vh - 68px);
+  padding: 44px clamp(16px, 4vw, 56px) 72px;
+  color: #fff;
+  font-family: $texte;
+  background: radial-gradient(ellipse 60% 55% at 92% 0%, rgba(160, 130, 255, 0.55), transparent 60%),
+    radial-gradient(ellipse 55% 60% at 0% 100%, rgba(60, 40, 210, 0.7), transparent 60%),
+    linear-gradient(130deg, #2b2a9e 0%, #4630bd 42%, #5a34cc 66%, #3b2a9c 100%);
+}
+
+.filigrane {
+  position: absolute;
+  top: -130px;
+  right: -110px;
+  width: 580px;
+  height: 580px;
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.09);
+  stroke-width: 2;
+  pointer-events: none;
+  animation: tourner 120s linear infinite;
+}
+
+.contenu {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: 40px;
+  max-width: 1360px;
+  margin: 0 auto;
+}
+
+// ---------- En-tête ----------
+.entete {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+
+  h1 {
+    margin: 0;
+    font-family: $titre;
+    font-size: clamp(48px, 6vw, 76px);
+    font-weight: 900;
+    line-height: 0.85;
+    text-transform: uppercase;
+  }
+
+  .sous-titre {
+    margin: 10px 0 0;
+    font-family: $etroit;
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.72);
+  }
+}
+
+.navigation {
+  display: flex;
+  gap: 6px;
+
+  button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 40px;
+    min-width: 40px;
+    padding: 0 14px;
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    border-radius: 6px;
+    background: rgba(30, 16, 80, 0.5);
+    color: #fff;
+    font-family: $etroit;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+
+    &:has(mat-icon) {
+      padding: 0;
+    }
+
+    &:hover,
+    &:focus-visible {
+      background: $rose;
+      border-color: $rose;
+    }
+  }
+}
+
+// ---------- Grille ----------
+.jours-semaine,
+.semaine {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 3px;
+}
+
+.jours-semaine {
+  margin-bottom: 8px;
+
+  span {
+    padding-left: 4px;
+    font-family: $etroit;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.78);
+  }
+}
+
+.grille {
+  display: grid;
+  gap: 3px;
+}
+
+.case {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  min-width: 0;
+  min-height: 98px;
+  padding: 8px 10px;
+  border: 0;
+  background: linear-gradient(180deg, rgba(48, 23, 100, 0.95), rgba(34, 15, 74, 0.95));
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+  color: #fff;
+  font: inherit;
+  text-align: left;
+  animation: apparaitre 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+
+  &__num {
+    font-family: $etroit;
+    font-size: 30px;
+    font-weight: 700;
+    line-height: 1;
+    color: $rose;
+  }
+
+  &__badge {
+    position: absolute;
+    top: 10px;
+    right: 8px;
+    padding: 2px 6px;
+    border-radius: 3px;
+    background: #fff;
+    color: #2a1a6a;
+    font-family: $etroit;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  // ----- variantes -----
+  &--hors-mois {
+    background: rgba(150, 140, 245, 0.2);
+    box-shadow: none;
+
+    .case__num {
+      color: rgba(225, 220, 255, 0.5);
+    }
+  }
+
+  &--aujourdhui {
+    z-index: 1;
+    box-shadow: inset 0 0 0 2px #fff, 0 0 28px rgba(255, 255, 255, 0.35);
+  }
+
+  &--match {
+    cursor: pointer;
+    background: $match;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+    .case__num {
+      color: #fff;
+    }
+
+    &:hover {
+      z-index: 2;
+      transform: scale(1.05);
+      box-shadow: 0 0 0 2px #fff, 0 16px 32px -12px rgba(0, 0, 0, 0.6);
+    }
+
+    &:focus-visible {
+      z-index: 2;
+      outline: 3px solid #fff;
+      outline-offset: 2px;
+    }
+  }
+
+  &--termine {
+    background: $match-joue;
+  }
+
+  &--hors-mois.case--match {
+    opacity: 0.55;
+  }
+
+  &--selection {
+    z-index: 3;
+    box-shadow: 0 0 0 3px #fff, 0 0 0 7px rgba(255, 61, 139, 0.75), 0 18px 36px -12px rgba(0, 0, 0, 0.6);
+  }
+
+  // match qui vient d'être simulé : éclair menthe
+  &--nouveau::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    animation: eclair 1.4s ease-out both;
+  }
+
+  // ----- contenu d'une case de match -----
+  &__affiche {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    display: flex;
+
+    img {
+      width: 32px;
+      height: 32px;
+      padding: 3px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.96);
+      object-fit: contain;
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.25);
+
+      & + img {
+        margin-left: -9px;
+      }
+    }
+  }
+
+  &__texte {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    max-width: 100%;
+  }
+
+  &__lieu {
+    max-width: 100%;
+    overflow: hidden;
+    font-family: $etroit;
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1.05;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  &__competition {
+    font-family: $etroit;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: rgba(255, 255, 255, 0.86);
+  }
+
+  &__score {
+    font-family: $titre;
+    font-size: 19px;
+    font-weight: 800;
+    line-height: 1;
+    white-space: nowrap;
+    color: $menthe;
+  }
+
+  &__plus {
+    position: absolute;
+    right: 8px;
+    bottom: 6px;
+    font-family: $etroit;
+    font-size: 12px;
+    font-weight: 800;
+  }
+}
+
+.legende {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 20px;
+  margin: 18px 0 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: $etroit;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    color: rgba(255, 255, 255, 0.85);
+  }
+}
+
+.echantillon {
+  width: 18px;
+  height: 18px;
+  border-radius: 3px;
+
+  &--match {
+    background: $match;
+  }
+
+  &--termine {
+    background: $match-joue;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+  }
+
+  &--aujourdhui {
+    box-shadow: inset 0 0 0 2px #fff;
+  }
+}
+
+// ---------- Panneau latéral ----------
+.panneau {
+  padding-top: 6px;
+
+  &__annee {
+    margin: 0;
+    font-family: $titre;
+    font-size: 92px;
+    font-weight: 800;
+    line-height: 0.85;
+    color: $lavande;
+  }
+
+  &__mois {
+    margin: 10px 0 0;
+    font-family: $etroit;
+    font-size: 36px;
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+  }
+
+  &__info {
+    margin: 14px 0 0;
+    font-family: $etroit;
+    font-size: 22px;
+    font-weight: 600;
+    line-height: 1.25;
+  }
+
+  &__titre {
+    margin: 36px 0 14px;
+    font-family: $etroit;
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: $cyan;
+  }
+}
+
+// ----- Simulation, dans le style des réglages FIFA -----
+.simulation {
+  &__entete {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px;
+    font-family: $etroit;
+  }
+
+  &__libelle {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  &__compte {
+    font-size: 14px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.75);
+  }
+
+  &__barre {
+    height: 8px;
+    margin: 8px 0 16px;
+    overflow: hidden;
+    border-radius: 4px;
+    background: rgba(20, 10, 52, 0.6);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+
+    span {
+      display: block;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, $menthe, $cyan);
+      transition: width 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+  }
+
+  &__bouton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    height: 46px;
+    margin-bottom: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(30, 16, 72, 0.78);
+    color: #fff;
+    font-family: $etroit;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.2s, box-shadow 0.2s, filter 0.2s;
+
+    mat-icon {
+      width: 22px;
+      height: 22px;
+      font-size: 22px;
+    }
+
+    &:hover:not(:disabled),
+    &:focus-visible {
+      border-color: transparent;
+      background: $bouton-actif;
+    }
+
+    &--principal {
+      border-color: transparent;
+      background: $bouton-actif;
+      box-shadow: 0 10px 24px -10px rgba(255, 47, 125, 0.85);
+
+      &:hover:not(:disabled) {
+        filter: brightness(1.1);
+      }
+    }
+
+    &:disabled {
+      cursor: progress;
+      opacity: 0.6;
+    }
+  }
+
+  &__reinitialiser {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 4px;
+    padding: 4px 0;
+    border: 0;
+    background: none;
+    color: rgba(255, 255, 255, 0.75);
+    font: inherit;
+    font-size: 14px;
+    cursor: pointer;
+
+    mat-icon {
+      width: 18px;
+      height: 18px;
+      font-size: 18px;
+    }
+
+    &:hover:not(:disabled) {
+      color: #fff;
+      text-decoration: underline;
+    }
+
+    &:disabled {
+      cursor: progress;
+      opacity: 0.6;
+    }
+  }
+
+  &__fin {
+    display: flex;
+    gap: 8px;
+    margin: 0 0 8px;
+    font-size: 15px;
+    line-height: 1.45;
+
+    mat-icon {
+      flex: none;
+      color: #ffd23f;
+    }
+  }
+
+  &__message {
+    margin: 14px 0 0;
+    padding: 10px 12px;
+    border-radius: 8px;
+    background: rgba(69, 245, 176, 0.14);
+    color: $menthe;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.45;
+
+    a {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      margin-top: 4px;
+      color: #fff;
+      font-family: $etroit;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      text-decoration: none;
+
+      mat-icon {
+        width: 18px;
+        height: 18px;
+        font-size: 18px;
+      }
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+
+    &--erreur {
+      background: rgba(255, 61, 139, 0.16);
+      color: #ffa3c6;
+    }
+  }
+}
+
+.tourniquet {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: tourner 0.8s linear infinite;
+}
+
+// ----- Match sélectionné -----
+.selection {
+  &__date {
+    margin: 0 0 14px;
+    font-family: $etroit;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  &__affiche {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    align-items: center;
+    gap: 8px;
+    padding: 16px 12px;
+    border-radius: 12px;
+    background: rgba(20, 10, 52, 0.55);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+  }
+
+  &__club {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+    color: #fff;
+    text-align: center;
+    text-decoration: none;
+
+    img {
+      width: 54px;
+      height: 54px;
+      object-fit: contain;
+      transition: transform 0.3s ease;
+    }
+
+    span {
+      font-family: $etroit;
+      font-size: 14px;
+      font-weight: 700;
+      line-height: 1.1;
+    }
+
+    &:hover img {
+      transform: scale(1.1);
+    }
+  }
+
+  &__score {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-family: $titre;
+    font-size: 40px;
+    font-weight: 900;
+    line-height: 1;
+
+    i {
+      font-size: 24px;
+      font-style: normal;
+      opacity: 0.5;
+    }
+
+    .perdant {
+      opacity: 0.45;
+    }
+  }
+
+  &__heure {
+    font-size: 30px;
+    color: $cyan;
+  }
+
+  &__infos {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 16px 0 0;
+    padding: 0;
+    list-style: none;
+
+    li {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.85);
+    }
+
+    mat-icon {
+      flex: none;
+      width: 18px;
+      height: 18px;
+      font-size: 18px;
+      color: $cyan;
+    }
+  }
+}
+
+.message {
+  padding: 40px 0;
+  font-size: 18px;
+}
+
+.chargement {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  padding: 120px 0;
+
+  span {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: $rose;
+    animation: rebond 0.9s ease-in-out infinite;
+
+    &:nth-child(2) {
+      animation-delay: 0.15s;
+    }
+
+    &:nth-child(3) {
+      animation-delay: 0.3s;
+    }
+  }
+}
+
+// `translate` plutôt que `transform` : l'animation ne doit pas bloquer le zoom au survol.
+// Pas d'étape finale : chaque case revient à sa propre opacité (cases hors du mois estompées)
+@keyframes apparaitre {
+  from {
+    opacity: 0;
+    translate: 0 14px;
+  }
+}
+
+@keyframes eclair {
+  0% {
+    background: rgba(69, 245, 176, 0.85);
+    box-shadow: 0 0 0 3px $menthe;
+  }
+  100% {
+    background: transparent;
+    box-shadow: 0 0 0 3px transparent;
+  }
+}
+
+@keyframes tourner {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes rebond {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-18px);
+  }
+}
+
+@media (max-width: 1100px) {
+  .contenu {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .panneau {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0 40px;
+  }
+}
+
+@media (max-width: 700px) {
+  .case {
+    min-height: 66px;
+    padding: 5px 6px;
+
+    &__num {
+      font-size: 19px;
+    }
+
+    &__texte,
+    &__badge {
+      display: none;
+    }
+
+    &__affiche {
+      top: auto;
+      right: 4px;
+      bottom: 4px;
+
+      img {
+        width: 20px;
+        height: 20px;
+        padding: 2px;
+
+        & + img {
+          margin-left: -6px;
+        }
+      }
+    }
+  }
+
+  .jours-semaine span {
+    font-size: 12px;
+    letter-spacing: 0.08em;
+  }
+
+  .panneau {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .case,
+  .case--nouveau::after,
+  .filigrane {
+    animation: none;
+  }
+}

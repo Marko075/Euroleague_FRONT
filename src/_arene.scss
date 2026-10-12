@@ -1,0 +1,213 @@
+// Charte « arène » : thème sombre commun aux pages du site (accueil, joueurs, saisons, matchs...)
+// Utilisation dans un composant : @use "arene" as a;
+
+$titre: "Big Shoulders Display", "Arial Narrow", sans-serif;
+$etroit: "Barlow Condensed", "Arial Narrow", sans-serif;
+$texte: "Barlow", "Helvetica Neue", sans-serif;
+
+$nuit: #0a0920;
+$nuit-claire: #151140;
+$orange: #ff6b00;
+$violet: #5b3ff0;
+$menthe: #3df5a7;
+$rose: #ff2f7d;
+$ciel: #49b0ff;
+$or: #ffd23f;
+$clair: #f3f1ff;
+$doux: rgba(243, 241, 255, 0.64);
+$ligne: rgba(255, 255, 255, 0.09);
+$ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+$largeur: 1240px;
+$gouttiere: clamp(16px, 4vw, 48px);
+
+// Fond de page : la nuit, éclairée par deux halos (violet à gauche, orange à droite)
+@mixin page {
+  display: block;
+  min-height: calc(100vh - 68px);
+  padding-bottom: 88px;
+  background: radial-gradient(ellipse 45% 38% at 90% 0%, rgba(255, 107, 0, 0.16), transparent 65%),
+    radial-gradient(ellipse 60% 45% at 0% 0%, rgba(91, 63, 240, 0.32), transparent 65%), $nuit;
+  color: $clair;
+  font-family: $texte;
+}
+
+@mixin contenu {
+  max-width: $largeur;
+  margin: 0 auto;
+  padding: 0 $gouttiere;
+}
+
+// Carte « verre dépoli »
+@mixin carte {
+  border: 1px solid $ligne;
+  border-radius: 16px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
+}
+
+// Petits libellés en capitales espacées
+@mixin etiquette($taille: 12px) {
+  font-family: $etroit;
+  font-size: $taille;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+@mixin titre-section {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  font-family: $etroit;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #fff;
+
+  &::before {
+    content: "";
+    width: 4px;
+    height: 18px;
+    border-radius: 2px;
+    background: $orange;
+  }
+}
+
+// Champ de formulaire sombre (input, select)
+@mixin champ {
+  width: 100%;
+  height: 46px;
+  padding: 0 14px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 10px;
+  outline: none;
+  background-color: rgba(10, 8, 35, 0.72);
+  color: $clair;
+  font-family: $texte;
+  font-size: 15px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+
+  &::placeholder {
+    color: rgba(243, 241, 255, 0.4);
+  }
+
+  &:focus {
+    border-color: $orange;
+    box-shadow: 0 0 0 3px rgba(255, 107, 0, 0.22);
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.45;
+  }
+}
+
+// Liste déroulante sombre avec sa flèche
+@mixin select {
+  @include champ;
+  padding-right: 40px;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23ff6b00' stroke-width='2'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  cursor: pointer;
+
+  option {
+    background: $nuit-claire;
+    color: $clair;
+  }
+}
+
+// Bouton discret (contour)
+@mixin bouton-contour {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 46px;
+  padding: 0 18px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 999px;
+  background: transparent;
+  color: #fff;
+  font-family: $etroit;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
+
+  &:hover,
+  &:focus-visible {
+    border-color: $orange;
+    background: $orange;
+  }
+}
+
+// Pastille de statut (À venir, Terminé...)
+@mixin pastille-statut {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-family: $etroit;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+// Tableau de statistiques sombre
+@mixin tableau {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+
+  tr {
+    height: auto; // annule la hauteur de ligne globale (styles.scss)
+  }
+
+  th {
+    padding: 0 8px 10px;
+    @include etiquette(11px);
+    color: $doux;
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  td {
+    padding: 9px 8px;
+    border-top: 1px solid $ligne;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+  }
+
+  tbody tr {
+    transition: background 0.15s;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.04);
+    }
+  }
+}
+
+@keyframes arene-monter {
+  from {
+    opacity: 0;
+    translate: 0 24px;
+  }
+}
+
+// Entrée en douceur, décalée par élément (--i)
+@mixin apparition($pas: 50ms) {
+  animation: arene-monter 0.6s $ease both;
+  animation-delay: calc(var(--i, 0) * #{$pas});
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}

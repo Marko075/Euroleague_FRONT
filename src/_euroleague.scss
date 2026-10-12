@@ -1,8 +1,9 @@
 // Charte Euroleague (sans dépendance Material, utilisable dans les composants)
-$ink: #111114;
-$muted: #6e6e78;
-$line: #ececef;
-$surface: #ffffff;
-$surface-hover: #f6f6f8;
+// Version sombre, alignée sur le thème « arène » du site (_arene.scss)
+$ink: #f3f1ff; // texte principal
+$muted: rgba(243, 241, 255, 0.62);
+$line: rgba(255, 255, 255, 0.08);
+$surface: #110e30; // panneaux (menu latéral)
+$surface-hover: rgba(255, 255, 255, 0.07);
 $orange: #ff6b00;
-$font: "Inter", "Helvetica Neue", Arial, sans-serif;
+$font: "Barlow", "Helvetica Neue", Arial, sans-serif;

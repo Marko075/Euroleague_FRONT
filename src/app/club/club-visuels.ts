@@ -17,12 +17,24 @@ const COACHS: Record<string, string> = {
   MUN: "gavel_anton.webp",
 }
 
+// Pays des clubs et nationalités des joueurs → code des drapeaux flagcdn
 const CODES_PAYS: Record<string, string> = {
   Grèce: "gr",
   Serbie: "rs",
   France: "fr",
   Turquie: "tr",
   Allemagne: "de",
+  "États-Unis": "us",
+  Brésil: "br",
+  Chili: "cl",
+  Argentine: "ar",
+  Italie: "it",
+  Croatie: "hr",
+  Nigeria: "ng",
+  Danemark: "dk",
+  Lituanie: "lt",
+  Gabon: "ga",
+  Espagne: "es",
 }
 
 export const POSTES: Record<string, string> = {
@@ -34,7 +46,7 @@ export const POSTES: Record<string, string> = {
 }
 
 // Un club sans code connu (ex. ajouté plus tard par l'équipe) a des visuels par défaut
-export function logoClub(club: Club): string {
+export function logoClub(club: Pick<Club, "code">): string {
   const fichier = club.code ? LOGOS[club.code] : undefined
   return "assets/logo_club/" + (fichier ?? "defaut.svg")
 }
@@ -48,7 +60,8 @@ export function photoStade(club: Club): string | null {
   return club.code && LOGOS[club.code] ? "assets/stades/" + club.code.toLowerCase() + ".jpg" : null
 }
 
-export function photoJoueur(joueur: Joueur): string {
+// Accepte aussi les lignes de statistiques, qui n'ont que le nom et le prénom du joueur
+export function photoJoueur(joueur: Pick<Joueur, "nom" | "prenom">): string {
   return "assets/joueurs/" + joueur.nom.toLowerCase() + "_" + joueur.prenom.toLowerCase() + ".png"
 }
 

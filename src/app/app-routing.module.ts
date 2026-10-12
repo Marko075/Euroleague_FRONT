@@ -10,6 +10,7 @@ import { SaisonComponent } from './saison/saison.component';
 import { MatchComponent } from './match/match.component';
 import { ClassementComponent } from 'classement/classement.component';
 import { StatistiquesComponent } from 'statistiques/statistiques.component';
+import { CalendrierComponent } from './calendrier/calendrier.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -20,12 +21,19 @@ const routes: Routes = [
   { path: 'matchs', component: MatchComponent },
   { path: 'classements', component: ClassementComponent },
   { path: 'statistiques', component: StatistiquesComponent },
+  { path: 'calendrier', component: CalendrierComponent },
   { path: '**', redirectTo: '' }
 ];
 
 @NgModule({
   imports: [
-    RouterModule.forRoot(routes)
+    // retour en haut de page à chaque navigation, et liens vers une ancre (ex. /#tv)
+    // décalés de la hauteur de la navbar collante
+    RouterModule.forRoot(routes, {
+      scrollPositionRestoration: 'enabled',
+      anchorScrolling: 'enabled',
+      scrollOffset: [0, 76]
+    })
   ],
   exports: [
     RouterModule

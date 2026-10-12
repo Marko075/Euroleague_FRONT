@@ -13,7 +13,7 @@ nav {
   display: flex;
   align-items: center;
   gap: 20px;
-  background: rgba(255, 255, 255, 0.92);
+  background: rgba(10, 9, 32, 0.86);
   backdrop-filter: blur(8px);
   border-bottom: 1px solid el.$line;
   font-family: el.$font;
@@ -32,9 +32,11 @@ nav {
   }
 
   .brand-name {
-    font-size: 19px;
-    font-weight: 600;
-    letter-spacing: -0.3px;
+    font-family: "Big Shoulders Display", "Arial Narrow", sans-serif;
+    font-size: 24px;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
   }
 }
 
@@ -68,7 +70,7 @@ nav {
       right: 0;
       bottom: -1px;
       height: 2px;
-      background: el.$ink;
+      background: el.$orange;
       transform: scaleX(0);
       transition: transform 0.25s ease;
     }

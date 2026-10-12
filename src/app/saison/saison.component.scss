@@ -1,122 +1,336 @@
-.page {
-  max-width: 960px;
-  margin: 0 auto;
-  padding: 24px 16px;
+// Page Saisons : une carte par saison, ses mini-saisons en accordéon et les journées en grille
+@use "arene" as a;
+
+:host {
+  @include a.page;
 }
 
-h1 {
-  margin-bottom: 24px;
+.contenu {
+  @include a.contenu;
 }
 
-section {
-  margin-bottom: 40px;
-}
+.section {
+  margin-bottom: 48px;
 
-h2 {
-  margin-bottom: 16px;
-  padding-bottom: 8px;
-  border-bottom: 2px solid #ff6a00;
-}
-
-.message {
-  color: #666;
-  font-style: italic;
-
-  &.erreur {
-    color: #c62828;
-    font-style: normal;
+  > h2 {
+    @include a.titre-section;
+    margin-bottom: 18px;
   }
 }
 
-.carte-saison {
-  margin-bottom: 20px;
+.message {
+  margin: 0;
+  padding: 24px 0;
+  color: a.$doux;
+  font-size: 16px;
+
+  &.erreur {
+    color: #ffa3c6;
+  }
 }
 
-.mini-saison {
-  margin-top: 20px;
+// ---------- Saison ----------
+.saison {
+  @include a.carte;
+  margin-bottom: 24px;
+  padding: 24px;
 
-  h3 {
-    margin-bottom: 8px;
-    font-size: 1rem;
-    color: #ff6a00;
+  &__entete {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 12px 24px;
+  }
+
+  &__dates {
+    margin: 0;
+    @include a.etiquette(13px);
+    color: a.$doux;
+  }
+
+  &__nom {
+    margin: 6px 0 0;
+    font-family: a.$titre;
+    font-size: clamp(34px, 4vw, 48px);
+    font-weight: 900;
+    line-height: 0.9;
+    text-transform: uppercase;
+  }
+
+  &__progression {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin: 18px 0 22px;
+    @include a.etiquette(13px);
+    color: a.$doux;
+  }
+}
+
+.barre {
+  flex: 1;
+  height: 8px;
+  overflow: hidden;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.08);
+
+  span {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, a.$orange, a.$rose);
+  }
+}
+
+.statut {
+  @include a.pastille-statut;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  color: a.$doux;
+
+  &--TERMINE,
+  &--TERMINEE {
+    background: rgba(255, 255, 255, 0.08);
+    color: a.$doux;
+  }
+
+  &--EN_COURS {
+    background: rgba(61, 245, 167, 0.14);
+    color: a.$menthe;
+  }
+
+  &--A_VENIR {
+    background: rgba(73, 176, 255, 0.14);
+    color: a.$ciel;
+  }
+}
+
+.pastille {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+// ---------- Mini-saisons en accordéon ----------
+.mini {
+  border-top: 1px solid a.$ligne;
+
+  &__entete {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    width: 100%;
+    padding: 16px 4px;
+    border: 0;
+    background: none;
+    color: #fff;
+    text-align: left;
+    cursor: pointer;
+
+    &:hover .mini__titre,
+    &:focus-visible .mini__titre {
+      color: a.$orange;
+    }
+  }
+
+  &__titre {
+    font-family: a.$titre;
+    font-size: 26px;
+    font-weight: 800;
+    text-transform: uppercase;
+    transition: color 0.2s;
+  }
+
+  &__compte {
+    margin-left: auto;
+    @include a.etiquette(13px);
+    color: a.$doux;
+  }
+
+  &__chevron {
+    color: a.$doux;
+    transition: transform 0.3s a.$ease;
+  }
+
+  &--ouverte &__chevron {
+    transform: rotate(180deg);
+  }
+
+  &__contenu {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    padding: 4px 0 24px;
+  }
+}
+
+// ---------- Journée et matchs ----------
+.journee {
+  padding: 14px 16px;
+  border: 1px solid a.$ligne;
+  border-radius: 12px;
+  background: rgba(10, 8, 35, 0.45);
+  @include a.apparition(30ms);
+
+  &__titre {
+    margin: 0 0 6px;
+    @include a.etiquette(13px);
+    color: a.$orange;
   }
 }
 
 .match {
   display: grid;
-  grid-template-columns: 40px 90px 1fr 70px 1fr 90px;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  grid-template-areas:
+    "date date date"
+    "domicile score exterieur";
   align-items: center;
-  gap: 8px;
-  padding: 10px 8px;
-  border-bottom: 1px solid #eee;
+  gap: 4px 12px;
+  padding: 10px 0;
 
-  .journee {
+  & + & {
+    border-top: 1px solid a.$ligne;
+  }
+
+  &__date {
+    grid-area: date;
+    font-size: 13px;
+    color: a.$doux;
+
+    // « sam. 17 oct. » → « Sam. 17 oct. » (seule la première lettre en majuscule)
+    &::first-letter {
+      text-transform: uppercase;
+    }
+
+    .statut {
+      margin-left: 6px;
+      padding: 1px 8px;
+      font-size: 11px;
+    }
+  }
+
+  &__club {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
     font-weight: 600;
-    color: #888;
-  }
+    color: rgba(243, 241, 255, 0.78);
 
-  .date {
-    font-size: 0.85rem;
-    color: #666;
-  }
+    img {
+      flex: none;
+      width: 30px;
+      height: 30px;
+      object-fit: contain;
+    }
 
-  .club {
-    &.domicile {
+    .nom {
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+
+    .sigle {
+      display: none;
+      font-family: a.$etroit;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+    }
+
+    &--domicile {
+      grid-area: domicile;
+      justify-content: flex-end;
       text-align: right;
     }
 
+    &--exterieur {
+      grid-area: exterieur;
+    }
+
     &.gagnant {
+      color: #fff;
       font-weight: 700;
     }
   }
 
-  .score {
-    text-align: center;
-    font-weight: 600;
-  }
-
-  .lien-score {
-    padding: 4px 0;
-    border-radius: 6px;
-    color: inherit;
+  &__score {
+    grid-area: score;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    min-width: 92px;
+    padding: 5px 10px;
+    border-radius: 8px;
+    font-family: a.$titre;
+    font-size: 22px;
+    font-weight: 800;
+    color: #fff;
     text-decoration: none;
-    transition: background 0.2s, color 0.2s;
 
-    &:hover {
-      background: #fff3e6;
-      color: #ff6a00;
-    }
-  }
-
-  .statut {
-    font-size: 0.75rem;
-    text-align: center;
-    padding: 2px 8px;
-    border-radius: 12px;
-    background: #eee;
-
-    &.TERMINE {
-      background: #e0e0e0;
+    i {
+      font-style: normal;
+      opacity: 0.5;
     }
 
-    &.EN_COURS {
-      background: #c8e6c9;
+    .perdant {
+      opacity: 0.5;
     }
 
-    &.A_VENIR {
-      background: #ffe0b2;
+    &--lien {
+      background: rgba(255, 255, 255, 0.06);
+      transition: background 0.2s, color 0.2s;
+
+      &:hover,
+      &:focus-visible {
+        background: a.$orange;
+      }
+    }
+
+    &--a-venir {
+      @include a.etiquette(14px);
+      color: a.$ciel;
     }
   }
 }
 
-@media (max-width: 700px) {
-  .match {
-    grid-template-columns: 1fr auto 1fr;
+@media (max-width: 900px) {
+  .mini__contenu {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
 
-    .journee,
-    .date,
-    .statut {
+@media (max-width: 560px) {
+  .saison {
+    padding: 18px 14px;
+  }
+
+  .match__club {
+    font-size: 14px;
+
+    img {
+      width: 24px;
+      height: 24px;
+    }
+
+    .nom {
       display: none;
     }
+
+    .sigle {
+      display: inline;
+    }
+  }
+
+  .match__score {
+    min-width: 76px;
+    font-size: 19px;
+  }
+
+  .mini__compte {
+    display: none;
   }
 }

@@ -1,0 +1,294 @@
+$titre: "Big Shoulders Display", "Arial Narrow", sans-serif;
+$etroit: "Barlow Condensed", "Arial Narrow", sans-serif;
+$texte: "Barlow", "Helvetica Neue", sans-serif;
+$orange: #ff6b00;
+
+:host {
+  display: block;
+}
+
+.pied {
+  position: relative;
+  overflow: hidden;
+  padding: 72px clamp(16px, 4vw, 48px) 0;
+  background: radial-gradient(ellipse 45% 70% at 100% 0%, rgba(255, 107, 0, 0.13), transparent 60%),
+    radial-gradient(ellipse 40% 60% at 0% 100%, rgba(91, 63, 240, 0.18), transparent 60%), #05041a;
+  color: rgba(243, 241, 255, 0.68);
+  font-family: $texte;
+
+  // liseré aux couleurs du site
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, $orange, #ff2f7d, #5b3ff0);
+  }
+
+  h3 {
+    margin: 0 0 16px;
+    font-family: $etroit;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #fff;
+  }
+}
+
+.pied__haut {
+  display: grid;
+  grid-template-columns: 1.15fr 2fr 1.25fr;
+  gap: 48px;
+  max-width: 1360px;
+  margin: 0 auto;
+}
+
+.marque {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: $titre;
+  font-size: 34px;
+  font-weight: 900;
+  line-height: 1;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: #fff;
+
+  .material-icons {
+    font-size: 34px;
+    color: $orange;
+  }
+}
+
+.pied__description {
+  max-width: 340px;
+  margin: 16px 0 24px;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.reseaux {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  a {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 50%;
+    color: #fff;
+    transition: background 0.2s, border-color 0.2s, transform 0.2s;
+
+    &:hover,
+    &:focus-visible {
+      background: $orange;
+      border-color: $orange;
+      transform: translateY(-3px);
+    }
+  }
+
+  svg {
+    width: 18px;
+    height: 18px;
+    fill: currentColor;
+  }
+}
+
+.pied__colonnes {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+
+  ul {
+    display: flex;
+    flex-direction: column;
+    gap: 11px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  a {
+    font-size: 15px;
+    text-decoration: none;
+    color: inherit;
+    transition: color 0.2s;
+
+    &:hover,
+    &:focus-visible {
+      color: $orange;
+    }
+  }
+}
+
+.newsletter {
+  p {
+    margin: 0 0 14px;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  form {
+    display: flex;
+    padding: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.04);
+    transition: border-color 0.2s;
+
+    &:focus-within {
+      border-color: $orange;
+    }
+  }
+
+  input {
+    flex: 1;
+    min-width: 0;
+    padding: 0 14px;
+    border: 0;
+    outline: none;
+    background: transparent;
+    color: #fff;
+    font: inherit;
+    font-size: 15px;
+
+    &::placeholder {
+      color: rgba(255, 255, 255, 0.4);
+    }
+  }
+
+  button {
+    height: 40px;
+    padding: 0 18px;
+    border: 0;
+    border-radius: 999px;
+    background: $orange;
+    color: #fff;
+    font-family: $etroit;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.2s;
+
+    &:hover {
+      background: #ff8124;
+    }
+  }
+
+  &__merci {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    color: #3df5a7;
+  }
+}
+
+.appli {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 18px;
+
+  &__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 14px 7px 10px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    color: #fff;
+    line-height: 1.05;
+
+    small {
+      display: block;
+      font-size: 10px;
+      opacity: 0.7;
+    }
+
+    b {
+      font-size: 15px;
+    }
+  }
+}
+
+// Le nom du site en très grand, juste esquissé, comme une signature
+.pied__geant {
+  margin: 56px 0 -0.08em;
+  font-family: $titre;
+  font-size: clamp(72px, 16.5vw, 250px);
+  font-weight: 900;
+  line-height: 0.8;
+  text-align: center;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(255, 255, 255, 0.09);
+  user-select: none;
+}
+
+.pied__bas {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 24px;
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: 22px 0 28px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 13px;
+
+  ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 20px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+@media (max-width: 1000px) {
+  .pied__haut {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .pied__colonnes {
+    grid-column: 1 / -1;
+    order: 3;
+  }
+}
+
+@media (max-width: 640px) {
+  .pied__haut {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 36px;
+  }
+
+  .pied__colonnes {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

@@ -1,8 +1,13 @@
-<div class="page">
-  <h1>Saisons</h1>
+<entete-page
+  surTitre="EuroLeague · Compétition"
+  titre="Les saisons"
+  accent="journée par journée"
+  description="Chaque saison se joue en mini-saisons de dix journées. Cliquez sur un score pour ouvrir la feuille du match."
+></entete-page>
 
+<div class="contenu">
   @if (chargement) {
-    <p class="message">Chargement des saisons...</p>
+    <p class="message">Chargement des saisons…</p>
   }
 
   @if (erreur) {
@@ -10,22 +15,21 @@
   }
 
   @if (!chargement && !erreur) {
-
     <!-- BLOC SAISON EN COURS -->
-    <section>
+    <section class="section">
       <h2>Saison en cours</h2>
-      @for (saison of saisonsEnCours; track saison.id) {
-        <ng-container *ngTemplateOutlet="carteSaison; context: { $implicit: saison }"></ng-container>
+      @for (vue of saisonsEnCours; track vue.saison.id) {
+        <ng-container *ngTemplateOutlet="carteSaison; context: { $implicit: vue }"></ng-container>
       } @empty {
         <p class="message">Aucune saison en cours.</p>
       }
     </section>
 
     <!-- BLOC SAISONS PASSÉES -->
-    <section>
+    <section class="section">
       <h2>Saisons passées</h2>
-      @for (saison of saisonsPassees; track saison.id) {
-        <ng-container *ngTemplateOutlet="carteSaison; context: { $implicit: saison }"></ng-container>
+      @for (vue of saisonsPassees; track vue.saison.id) {
+        <ng-container *ngTemplateOutlet="carteSaison; context: { $implicit: vue }"></ng-container>
       } @empty {
         <p class="message">Aucune saison passée.</p>
       }
@@ -34,67 +38,101 @@
 </div>
 
 <!-- TEMPLATE RÉUTILISÉ POUR UNE SAISON -->
-<ng-template #carteSaison let-saison>
-  <mat-card class="carte-saison">
-    <mat-card-header>
-      <mat-card-title>{{ saison.nom }}</mat-card-title>
-      <mat-card-subtitle>
-        Du {{ saison.dateDebut | date:'dd/MM/yyyy' }}
-        @if (saison.dateFin) {
-          au {{ saison.dateFin | date:'dd/MM/yyyy' }}
-        } @else {
-          · en cours
-        }
-      </mat-card-subtitle>
-    </mat-card-header>
-
-    <mat-card-content>
-      @for (mini of saison.miniSaisons; track mini.numero) {
-        <div class="mini-saison">
-          <h3>Mini-saison {{ mini.numero }}</h3>
-
-          @for (match of mini.matchs; track match.id) {
-            <div class="match">
-              <span class="journee">J{{ match.journee }}</span>
-              <span class="date">{{ match.dateMatch | date:'dd/MM HH:mm' }}</span>
-
-              <span class="club domicile"
-                    [class.gagnant]="match.statut === 'TERMINE' && (match.scoreDomicile ?? 0) > (match.scoreExterieur ?? 0)">
-                {{ match.clubDomicileNom }}
-              </span>
-
-              @if (match.statut === 'TERMINE') {
-                <!-- Score cliquable : ouvre la page Matchs filtrée sur ce match -->
-                <a class="score lien-score"
-                   routerLink="/matchs"
-                   [queryParams]="{ miniSaison: mini.numero, journee: match.journee, clubId: match.clubDomicileId }"
-                   title="Voir les statistiques du match">
-                  {{ match.scoreDomicile }} - {{ match.scoreExterieur }}
-                </a>
-              } @else {
-                <span class="score">
-                  @if (match.statut === 'A_VENIR') {
-                    vs
-                  } @else {
-                    {{ match.scoreDomicile }} - {{ match.scoreExterieur }}
-                  }
-                </span>
-              }
-
-              <span class="club exterieur"
-                    [class.gagnant]="match.statut === 'TERMINE' && (match.scoreExterieur ?? 0) > (match.scoreDomicile ?? 0)">
-                {{ match.clubExterieurNom }}
-              </span>
-
-              <span class="statut" [class]="'statut ' + match.statut">
-                {{ match.statut === 'A_VENIR' ? 'À venir' : match.statut === 'EN_COURS' ? 'En cours' : 'Terminé' }}
-              </span>
-            </div>
+<ng-template #carteSaison let-vue>
+  <article class="saison">
+    <header class="saison__entete">
+      <div>
+        <p class="saison__dates">
+          Du {{ vue.saison.dateDebut | date: "d MMMM yyyy" : undefined : "fr" }}
+          @if (vue.saison.dateFin) {
+            au {{ vue.saison.dateFin | date: "d MMMM yyyy" : undefined : "fr" }}
           }
-        </div>
-      } @empty {
-        <p class="message">Aucun match disponible pour cette saison.</p>
-      }
-    </mat-card-content>
-  </mat-card>
+        </p>
+        <h3 class="saison__nom">{{ vue.saison.nom }}</h3>
+      </div>
+      <span [class]="'statut statut--' + vue.saison.statut">
+        @if (vue.saison.statut === "EN_COURS") {
+          <span class="pastille" aria-hidden="true"></span>
+        }
+        {{ libelleStatut(vue.saison.statut) }}
+      </span>
+    </header>
+
+    <div class="saison__progression">
+      <span>{{ vue.joues }} / {{ vue.total }} matchs joués</span>
+      <div class="barre" aria-hidden="true">
+        <span [style.width.%]="vue.total ? (vue.joues / vue.total) * 100 : 0"></span>
+      </div>
+    </div>
+
+    @for (mini of vue.miniSaisons; track mini.numero) {
+      <section class="mini" [class.mini--ouverte]="estOuverte(vue, mini)">
+        <button
+          type="button"
+          class="mini__entete"
+          [attr.aria-expanded]="estOuverte(vue, mini)"
+          (click)="basculer(vue, mini)"
+        >
+          <span class="mini__titre">Mini-saison {{ mini.numero }}</span>
+          <span [class]="'statut statut--' + mini.statut">{{ libelleStatut(mini.statut) }}</span>
+          <span class="mini__compte">{{ mini.joues }} / {{ mini.total }} matchs</span>
+          <mat-icon class="mini__chevron" aria-hidden="true">expand_more</mat-icon>
+        </button>
+
+        @if (estOuverte(vue, mini)) {
+          <div class="mini__contenu">
+            @for (journee of mini.journees; track journee.numero; let i = $index) {
+              <div class="journee" [style.--i]="i">
+                <h4 class="journee__titre">Journée {{ journee.numero }}</h4>
+                @for (match of journee.matchs; track match.id) {
+                  <div class="match">
+                    <span class="match__date">
+                      {{ match.dateMatch | date: "EEE d MMM · HH:mm" : undefined : "fr" }}
+                      <span [class]="'statut statut--' + match.statut">{{ libelleStatut(match.statut) }}</span>
+                    </span>
+
+                    <span class="match__club match__club--domicile" [class.gagnant]="vainqueur(match) === 'domicile'">
+                      <span class="nom">{{ match.clubDomicileNom }}</span>
+                      <span class="sigle">{{ sigle(match.clubDomicileId, match.clubDomicileNom) }}</span>
+                      <img [src]="logo(match.clubDomicileId)" alt="" />
+                    </span>
+
+                    @if (match.statut === "TERMINE") {
+                      <!-- Score cliquable : ouvre la page Matchs filtrée sur ce match -->
+                      <a
+                        class="match__score match__score--lien"
+                        routerLink="/matchs"
+                        [queryParams]="{
+                          miniSaison: mini.numero,
+                          journee: match.journee,
+                          clubId: match.clubDomicileId,
+                        }"
+                        title="Voir les statistiques du match"
+                      >
+                        <b [class.perdant]="vainqueur(match) === 'exterieur'">{{ match.scoreDomicile }}</b>
+                        <i>–</i>
+                        <b [class.perdant]="vainqueur(match) === 'domicile'">{{ match.scoreExterieur }}</b>
+                      </a>
+                    } @else if (match.statut === "EN_COURS") {
+                      <span class="match__score">{{ match.scoreDomicile }} – {{ match.scoreExterieur }}</span>
+                    } @else {
+                      <span class="match__score match__score--a-venir">VS</span>
+                    }
+
+                    <span class="match__club match__club--exterieur" [class.gagnant]="vainqueur(match) === 'exterieur'">
+                      <img [src]="logo(match.clubExterieurId)" alt="" />
+                      <span class="nom">{{ match.clubExterieurNom }}</span>
+                      <span class="sigle">{{ sigle(match.clubExterieurId, match.clubExterieurNom) }}</span>
+                    </span>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        }
+      </section>
+    } @empty {
+      <p class="message">Aucun match disponible pour cette saison.</p>
+    }
+  </article>
 </ng-template>

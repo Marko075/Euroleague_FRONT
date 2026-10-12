@@ -1,24 +1,18 @@
+<entete-page
+  surTitre="EuroLeague · Joueurs"
+  titre="Statistiques"
+  accent="des joueurs"
+  description="Consulte les performances des joueurs selon la période choisie."
+></entete-page>
 
-<div class="page-statistiques">
-  <header class="entete">
-    <h1>Statistiques des joueurs</h1>
-    <p>Consulte les performances des joueurs selon la période choisie.</p>
-  </header>
-
+<div class="contenu">
   <section class="filtres">
     <div class="filtre">
       <label for="miniSaison">Mini-saison</label>
-      <select
-        id="miniSaison"
-        [value]="miniSaisonSelectionnee ?? ''"
-        (change)="changerMiniSaison($event)"
-      >
+      <select id="miniSaison" [value]="miniSaisonSelectionnee ?? ''" (change)="changerMiniSaison($event)">
         <option value="">Toutes les mini-saisons</option>
-
         @for (periode of periodes; track periode.miniSaison) {
-          <option [value]="periode.miniSaison">
-            Mini-saison {{ periode.miniSaison }}
-          </option>
+          <option [value]="periode.miniSaison">Mini-saison {{ periode.miniSaison }}</option>
         }
       </select>
     </div>
@@ -32,28 +26,26 @@
         [disabled]="miniSaisonSelectionnee === null"
       >
         <option value="">Toutes les journées de la période</option>
-
         @for (journee of journeesDisponibles; track journee) {
-          <option [value]="journee">
-            Journée {{ journee }}
-          </option>
+          <option [value]="journee">Journée {{ journee }}</option>
         }
       </select>
-
-      <small>
-        Sans journée précise, les statistiques sont cumulées sur la période choisie.
-      </small>
+      <small>Sans journée précise, les statistiques sont cumulées sur la période choisie.</small>
     </div>
 
-    <div class="filtre filtre-joueur">
+    <div
+      class="filtre filtre-joueur"
+      (focusout)="fermerSiFocusSort($event)"
+      (keydown.escape)="listeJoueursOuverte = false"
+    >
       <label for="rechercheJoueur">Rechercher un joueur</label>
-
       <input
         id="rechercheJoueur"
         type="text"
         placeholder="Tape un nom ou un prénom..."
         [value]="rechercheJoueur"
         (input)="changerRechercheJoueur($event)"
+        (focus)="listeJoueursOuverte = true"
         autocomplete="off"
         role="combobox"
         aria-autocomplete="list"
@@ -68,24 +60,26 @@
               type="button"
               class="option-joueur"
               role="option"
+              [ngStyle]="theme(joueur.clubNom)"
               (click)="selectionnerJoueur(joueur)"
             >
-              <span class="nom-joueur">
-                {{ joueur.prenom }} {{ joueur.nom }}
+              <span class="portrait">
+                <img
+                  [src]="getPhotoJoueur(joueur.nom, joueur.prenom)"
+                  alt=""
+                  loading="lazy"
+                  (error)="$any($event.target).style.display = 'none'"
+                />
               </span>
-
+              <span class="nom-joueur">{{ joueur.prenom }} {{ joueur.nom }}</span>
               @if (joueur.clubNom) {
-                <span class="club-joueur">
-                  {{ joueur.clubNom }}
-                </span>
+                <span class="club-joueur"><img [src]="logo(joueur.clubNom)" alt="" />{{ joueur.clubNom }}</span>
               }
             </button>
           }
 
           @if (joueursFiltres.length === 0) {
-            <div class="aucun-joueur">
-              Aucun joueur trouvé.
-            </div>
+            <div class="aucun-joueur">Aucun joueur trouvé.</div>
           }
         </div>
       }
@@ -93,76 +87,88 @@
   </section>
 
   @if (chargement) {
-    <div class="message chargement">
-      Chargement des statistiques...
-    </div>
+    <div class="message chargement"><mat-icon>hourglass_top</mat-icon>Chargement des statistiques...</div>
   }
 
   @if (erreur) {
-    <div class="message erreur">
-      {{ erreur }}
-    </div>
+    <div class="message erreur"><mat-icon>error_outline</mat-icon>{{ erreur }}</div>
   }
 
   @if (!chargement && !erreur && joueurSelectionne === null) {
-    <div class="message">
-      Sélectionne un joueur pour afficher ses statistiques.
-    </div>
+    <div class="message"><mat-icon>person_search</mat-icon>Sélectionne un joueur pour afficher ses statistiques.</div>
   }
 
   @if (!chargement && statistiques) {
     <section class="carte-statistiques">
-      <div class="entete-joueur">
+      <div class="joueur" [ngStyle]="theme(statistiques.clubNom)">
         <img
-          class="photo-joueur"
+          class="joueur__photo"
           [src]="getPhotoJoueur(statistiques.nom, statistiques.prenom)"
           [alt]="statistiques.prenom + ' ' + statistiques.nom"
           (error)="$any($event.target).style.display = 'none'"
         />
-
-        <div class="identite-joueur">
-          <h2>{{ statistiques.prenom }} {{ statistiques.nom }}</h2>
-          <p>{{ statistiques.clubNom || 'Club non renseigné' }}</p>
-          <p>{{ statistiques.poste || 'Poste non renseigné' }}</p>
-        </div>
-      </div>
-
-      <div class="resume-periode">
-        @if (miniSaisonSelectionnee === null) {
-          <span>Toutes les mini-saisons</span>
-        } @else {
-          <span>Mini-saison {{ miniSaisonSelectionnee }}</span>
+        @if (statistiques.clubNom) {
+          <img class="joueur__logo" [src]="logo(statistiques.clubNom)" [alt]="statistiques.clubNom" />
         }
 
-        @if (journeeSelectionnee !== null) {
-          <span> — Journée {{ journeeSelectionnee }}</span>
-        } @else if (miniSaisonSelectionnee !== null) {
-          <span> — Toutes les journées</span>
-        }
+        <span class="joueur__periode">
+          @if (miniSaisonSelectionnee === null) {
+            Toutes les mini-saisons
+          } @else {
+            Mini-saison {{ miniSaisonSelectionnee }}
+          }
+          @if (journeeSelectionnee !== null) {
+            — Journée {{ journeeSelectionnee }}
+          } @else if (miniSaisonSelectionnee !== null) {
+            — Toutes les journées
+          }
+        </span>
+        <h2>
+          <small>{{ statistiques.prenom }}</small>
+          {{ statistiques.nom }}
+        </h2>
+        <p class="joueur__club">
+          {{ statistiques.clubNom || "Club non renseigné" }} ·
+          {{ statistiques.poste ? libellePoste(statistiques.poste) : "Poste non renseigné" }}
+        </p>
       </div>
 
       <div class="grille-statistiques">
-        <div class="statistique">
+        <div class="statistique" style="--i: 0">
+          <mat-icon>sports_basketball</mat-icon>
           <span class="valeur">{{ statistiques.matchsJoues }}</span>
           <span class="libelle">Matchs joués</span>
         </div>
 
-        <div class="statistique">
+        <div class="statistique" style="--i: 1">
+          <mat-icon>local_fire_department</mat-icon>
           <span class="valeur">{{ statistiques.points }}</span>
           <span class="libelle">Points</span>
+          @if (moyenne(statistiques.points); as m) {
+            <span class="moyenne">{{ m | number: "1.1-1" : "fr" }} par match</span>
+          }
         </div>
 
-        <div class="statistique">
+        <div class="statistique" style="--i: 2">
+          <mat-icon>open_with</mat-icon>
           <span class="valeur">{{ statistiques.rebonds }}</span>
           <span class="libelle">Rebonds</span>
+          @if (moyenne(statistiques.rebonds); as m) {
+            <span class="moyenne">{{ m | number: "1.1-1" : "fr" }} par match</span>
+          }
         </div>
 
-        <div class="statistique">
+        <div class="statistique" style="--i: 3">
+          <mat-icon>swap_horiz</mat-icon>
           <span class="valeur">{{ statistiques.passesDecisives }}</span>
           <span class="libelle">Passes décisives</span>
+          @if (moyenne(statistiques.passesDecisives); as m) {
+            <span class="moyenne">{{ m | number: "1.1-1" : "fr" }} par match</span>
+          }
         </div>
 
-        <div class="statistique">
+        <div class="statistique statistique--mvp" style="--i: 4">
+          <mat-icon>star</mat-icon>
           <span class="valeur">{{ statistiques.nbMvp }}</span>
           <span class="libelle">MVP</span>
         </div>

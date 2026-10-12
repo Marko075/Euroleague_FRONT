@@ -1,36 +1,289 @@
-.liste {
+// Page Joueurs : des cartes façon Ultimate Team, aux couleurs de chaque club
+@use "arene" as a;
+
+:host {
+  @include a.page;
+}
+
+.contenu {
+  @include a.contenu;
+}
+
+// ---------- Filtres ----------
+.filtres {
+  @include a.carte;
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  padding: 24px;
+  gap: 14px;
+  margin-bottom: 28px;
+  padding: 16px;
+
+  &__clubs,
+  &__postes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  &__ligne {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px 20px;
+  }
+}
+
+.puce {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 16px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 999px;
+  background: rgba(10, 8, 35, 0.6);
+  color: a.$doux;
+  font-family: a.$etroit;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: color 0.2s, background 0.2s, border-color 0.2s, box-shadow 0.2s;
+
+  img {
+    width: 22px;
+    height: 22px;
+    object-fit: contain;
+  }
+
+  &:hover,
+  &:focus-visible {
+    border-color: rgba(255, 255, 255, 0.4);
+    color: #fff;
+  }
+
+  &--active {
+    border-color: transparent;
+    background: var(--c1, a.$orange);
+    color: var(--sur-c1, #fff);
+    box-shadow: 0 8px 22px -10px var(--accent, a.$orange);
+  }
+
+  &--petite {
+    height: 36px;
+    padding: 0 13px;
+    font-size: 14px;
+  }
+}
+
+.recherche {
+  position: relative;
+  flex: 1;
+  min-width: 220px;
+  max-width: 360px;
+  margin: 0;
+
+  mat-icon {
+    position: absolute;
+    top: 50%;
+    left: 12px;
+    color: a.$doux;
+    transform: translateY(-50%);
+  }
+
+  input {
+    @include a.champ;
+    padding-left: 44px;
+  }
+}
+
+.compteur {
+  margin-left: auto;
+  @include a.etiquette(13px);
+  color: a.$doux;
+}
+
+// ---------- Cartes ----------
+.grille {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 18px;
 }
 
 .carte {
+  position: relative;
+  isolation: isolate;
   display: flex;
-  flex-direction: row;
-  gap: 24px;
-  padding: 16px;
+  flex-direction: column;
+  justify-content: flex-end;
+  aspect-ratio: 3 / 4.2;
+  padding: 14px;
+  overflow: hidden;
+  border-radius: 16px;
+  background: a.$nuit-claire;
+  box-shadow: 0 18px 36px -20px rgba(0, 0, 0, 0.8), inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+  color: #fff;
+  text-decoration: none;
+  transition: transform 0.35s a.$ease, box-shadow 0.35s ease;
+  @include a.apparition(30ms);
+
+  // assombrit le bas de la carte pour que le nom reste lisible
+  &::before {
+    content: "";
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: -1;
+    height: 50%;
+    background: linear-gradient(0deg, rgba(5, 4, 20, 0.94) 15%, transparent);
+  }
+
+  &__fond {
+    position: absolute;
+    inset: 0;
+    z-index: -3;
+    background: radial-gradient(circle at 70% 18%, color-mix(in srgb, var(--c2) 32%, transparent), transparent 55%),
+      linear-gradient(165deg, var(--c1) 0%, color-mix(in srgb, var(--c1) 35%, #05041a) 78%);
+
+    // fines rayures de maillot à la couleur secondaire
+    &::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        115deg,
+        transparent 0 18px,
+        color-mix(in srgb, var(--c2) 9%, transparent) 18px 20px
+      );
+    }
+  }
+
+  &__haut {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  &__poste {
+    font-family: a.$titre;
+    font-size: 30px;
+    font-weight: 900;
+    line-height: 0.85;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+  }
+
+  &__logo {
+    width: 34px;
+    height: 34px;
+    object-fit: contain;
+    filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.4));
+  }
+
+  &__drapeau {
+    width: 26px;
+    height: 18px;
+    border-radius: 3px;
+    object-fit: cover;
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.35);
+  }
+
+  &__photo {
+    position: absolute;
+    bottom: 70px;
+    left: 50%;
+    z-index: -2;
+    height: 76%;
+    translate: -40% 0;
+    filter: drop-shadow(0 12px 18px rgba(0, 0, 0, 0.45));
+    transition: transform 0.5s a.$ease;
+  }
+
+  &__initiales {
+    position: absolute;
+    top: 32%;
+    left: 50%;
+    z-index: -2;
+    font-family: a.$titre;
+    font-size: 72px;
+    font-weight: 900;
+    color: rgba(255, 255, 255, 0.25);
+    translate: -50% -50%;
+  }
+
+  &__prenom {
+    font-family: a.$etroit;
+    font-size: 15px;
+    font-weight: 600;
+    opacity: 0.85;
+  }
+
+  &__nom {
+    font-family: a.$titre;
+    font-size: 26px;
+    font-weight: 800;
+    line-height: 0.95;
+    text-transform: uppercase;
+    overflow-wrap: anywhere;
+  }
+
+  &__infos {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px 10px;
+    margin-top: 6px;
+    @include a.etiquette(12px);
+    letter-spacing: 0.08em;
+    color: rgba(255, 255, 255, 0.78);
+  }
+
+  &:hover,
+  &:focus-visible {
+    z-index: 1;
+    outline: none;
+    transform: translateY(-6px);
+    box-shadow: 0 0 0 3px #fff, 0 26px 50px -20px var(--accent);
+  }
+
+  &:hover &__photo,
+  &:focus-visible &__photo {
+    transform: scale(1.05) translateY(-4px);
+  }
 }
 
-.photo {
-  width: 180px;
-  height: 220px;
-  flex-shrink: 0;
-  border: 2px dashed #999;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #999;
+.vide,
+.chargement {
+  grid-column: 1 / -1;
+  padding: 48px 0;
+  color: a.$doux;
+  font-size: 16px;
+  text-align: center;
 }
 
-.photo img { 
-  width: 100%; 
-  height: 100%; 
-  object-fit: 
-  contain; 
-}
+@media (max-width: 520px) {
+  .grille {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
 
-.infos h2 {
-  margin-top: 0;
+  .carte {
+    padding: 10px;
+
+    &__nom {
+      font-size: 21px;
+    }
+
+    &__poste {
+      font-size: 24px;
+    }
+  }
+
+  .compteur {
+    margin-left: 0;
+  }
 }

@@ -1,0 +1,117 @@
+@use "arene" as a;
+
+:host {
+  display: block;
+}
+
+.entete {
+  position: relative;
+  overflow: hidden;
+  padding: 56px 0 40px;
+
+  &__ballon {
+    position: absolute;
+    top: -180px;
+    right: -120px;
+    width: 520px;
+    height: 520px;
+    fill: none;
+    stroke: rgba(255, 255, 255, 0.06);
+    stroke-width: 1.5;
+    pointer-events: none;
+    animation: tourner 120s linear infinite;
+  }
+
+  &__contenu {
+    @include a.contenu;
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 24px 40px;
+    animation: monter 0.7s a.$ease both;
+  }
+
+  &__sur-titre {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+    @include a.etiquette(14px);
+    letter-spacing: 0.24em;
+    color: a.$orange;
+  }
+
+  h1 {
+    margin: 14px 0 0;
+    font-family: a.$titre;
+    font-size: clamp(54px, 7.5vw, 104px);
+    font-weight: 900;
+    line-height: 0.86;
+    text-transform: uppercase;
+    color: #fff;
+
+    // la deuxième ligne, en dégradé ; la boîte est agrandie vers le haut pour ne pas couper les accents
+    span {
+      position: relative;
+      display: block;
+      margin-top: -0.06em;
+      padding-top: 0.12em;
+      background: linear-gradient(90deg, a.$orange 10%, a.$rose 90%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+  }
+
+  &__description {
+    max-width: 560px;
+    margin: 18px 0 0;
+    font-size: 17px;
+    line-height: 1.55;
+    color: a.$doux;
+  }
+
+  &__extra:empty {
+    display: none;
+  }
+}
+
+.pastille {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: pulsation 2s ease-out infinite;
+}
+
+@keyframes monter {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+}
+
+@keyframes tourner {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulsation {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, currentColor 70%, transparent);
+  }
+  100% {
+    box-shadow: 0 0 0 10px transparent;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .entete__ballon,
+  .entete__contenu,
+  .pastille {
+    animation: none;
+  }
+}

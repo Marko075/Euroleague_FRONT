@@ -1,9 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { Club } from '../models/joueur.model';
-import { MatchStats } from '../models/match-stats.model';
+import { MatchStats, StatsJoueur } from '../models/match-stats.model';
 import { ClubService } from '../services/club.service';
 import { FiltresMatch, MatchService } from '../services/match.service';
+import { logoClub, photoJoueur, themeClub } from '../club/club-visuels';
 
 @Component({
   selector: 'app-match',
@@ -21,6 +22,9 @@ export class MatchComponent implements OnInit {
   // Données servant à remplir les listes déroulantes
   clubs: Club[] = [];
   private tousLesMatchs: MatchStats[] = [];
+
+  // Feuilles de match dépliées par l'utilisateur
+  private ouverts = new Set<number>();
 
   constructor(
     private matchService: MatchService,
@@ -117,5 +121,51 @@ export class MatchComponent implements OnInit {
   // Vrai si l'équipe a gagné le match (sert à mettre son score en gras)
   domicileGagne(match: MatchStats): boolean {
     return match.scoreDomicile > match.scoreExterieur;
+  }
+
+  // ----- Affichage -----
+
+  // La feuille de match est dépliée au clic, et d'office quand un seul match est affiché
+  // (ex. en venant d'un score de la page Saisons)
+  estOuvert(match: MatchStats): boolean {
+    return this.matchs.length === 1 || this.ouverts.has(match.id);
+  }
+
+  basculer(match: MatchStats): void {
+    if (!this.ouverts.delete(match.id)) {
+      this.ouverts.add(match.id);
+    }
+  }
+
+  logo(clubId: number): string {
+    const club = this.club(clubId);
+    return club ? logoClub(club) : 'assets/logo_club/defaut.svg';
+  }
+
+  theme(clubId: number): Record<string, string> {
+    const club = this.club(clubId);
+    return club ? themeClub(club) : {};
+  }
+
+  // Halos aux couleurs des deux clubs + rang d'apparition (animation décalée, plafonnée)
+  couleurs(match: MatchStats, index: number): Record<string, string> {
+    return {
+      '--dom': this.theme(match.clubDomicileId)['--accent'] ?? '#5b3ff0',
+      '--ext': this.theme(match.clubExterieurId)['--accent'] ?? '#5b3ff0',
+      '--i': String(Math.min(index, 8))
+    };
+  }
+
+  photoMvp(match: MatchStats): string {
+    return photoJoueur({ nom: match.mvpNom ?? '', prenom: match.mvpPrenom ?? '' });
+  }
+
+  // Meilleur marqueur d'une équipe
+  meilleur(stats: StatsJoueur[]): StatsJoueur | undefined {
+    return stats.reduce<StatsJoueur | undefined>((meilleur, s) => (!meilleur || s.points > meilleur.points ? s : meilleur), undefined);
+  }
+
+  private club(clubId: number): Club | undefined {
+    return this.clubs.find((c) => c.id === clubId);
   }
 }

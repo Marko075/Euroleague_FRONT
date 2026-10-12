@@ -1,142 +1,272 @@
-.page {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 24px 16px;
+// Page Matchs : tableau d'affichage de chaque match, feuille de stats dépliable
+@use "arene" as a;
+
+:host {
+  @include a.page;
 }
 
-h1 {
-  margin-bottom: 24px;
+.contenu {
+  @include a.contenu;
 }
 
-/* ----- Filtres ----- */
+.compteur-geant {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+
+  b {
+    font-family: a.$titre;
+    font-size: 72px;
+    font-weight: 900;
+    line-height: 0.85;
+  }
+
+  span {
+    @include a.etiquette(13px);
+    color: a.$doux;
+  }
+}
+
+// ---------- Filtres ----------
 .filtres {
+  @include a.carte;
   display: flex;
   flex-wrap: wrap;
   align-items: flex-end;
-  gap: 16px;
+  gap: 14px 18px;
   margin-bottom: 28px;
+  padding: 18px;
 
   label {
     display: flex;
+    flex: 1;
     flex-direction: column;
     gap: 6px;
-    font-size: 0.8rem;
-    font-weight: 500;
-    color: #666;
+    min-width: 180px;
+    @include a.etiquette(12px);
+    color: a.$doux;
   }
 
   select {
-    min-width: 180px;
-    padding: 8px 12px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    background: #fff;
-    font-size: 0.95rem;
-    color: #111;
-    cursor: pointer;
-    transition: border-color 0.2s;
-
-    &:hover,
-    &:focus {
-      border-color: #ff6a00;
-      outline: none;
-    }
+    @include a.select;
   }
 
   .reinitialiser {
-    padding: 8px 14px;
-    border: none;
-    border-radius: 8px;
-    background: transparent;
-    color: #ff6a00;
-    font-size: 0.9rem;
-    font-weight: 500;
-    cursor: pointer;
-
-    &:hover {
-      background: #fff3e6;
-    }
-  }
-
-  .compteur {
-    margin-left: auto;
-    padding-bottom: 8px;
-    font-size: 0.9rem;
-    color: #666;
+    @include a.bouton-contour;
   }
 }
 
 .message {
-  color: #666;
-  font-style: italic;
+  margin: 0;
+  padding: 32px 0;
+  color: a.$doux;
+  font-size: 16px;
+  text-align: center;
 
   &.erreur {
-    color: #c62828;
-    font-style: normal;
+    color: #ffa3c6;
   }
 }
 
-.carte-match {
-  margin-bottom: 28px;
-  padding-bottom: 8px;
+// ---------- Un match ----------
+.match {
+  @include a.carte;
+  position: relative;
+  margin-bottom: 18px;
+  padding: 18px 22px;
+  overflow: hidden;
+  @include a.apparition(40ms);
+
+  // halos aux couleurs des deux clubs
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: radial-gradient(
+        ellipse 40% 90% at 0% 40%,
+        color-mix(in srgb, var(--dom, #5b3ff0) 26%, transparent),
+        transparent 70%
+      ),
+      radial-gradient(
+        ellipse 40% 90% at 100% 40%,
+        color-mix(in srgb, var(--ext, #5b3ff0) 26%, transparent),
+        transparent 70%
+      );
+  }
+
+  isolation: isolate;
+
+  &__meta {
+    @include a.etiquette(12px);
+    color: a.$doux;
+    text-align: center;
+  }
 }
 
-/* ----- Score ----- */
 .tableau-score {
   display: grid;
-  grid-template-columns: 1fr auto 1fr;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   align-items: center;
-  gap: 16px;
-  padding: 16px 16px 4px;
-  font-size: 1.2rem;
+  gap: 18px;
+  margin: 10px 0 6px;
+}
 
-  .equipe {
-    &.domicile {
-      text-align: right;
+.equipe {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+  color: rgba(243, 241, 255, 0.72);
+  text-decoration: none;
+  transition: color 0.2s;
+
+  img {
+    flex: none;
+    width: 58px;
+    height: 58px;
+    object-fit: contain;
+    filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.45));
+  }
+
+  span {
+    font-family: a.$titre;
+    font-size: 26px;
+    font-weight: 800;
+    line-height: 0.95;
+    text-transform: uppercase;
+  }
+
+  &--domicile {
+    justify-content: flex-end;
+    text-align: right;
+  }
+
+  &.gagnant {
+    color: #fff;
+  }
+
+  &:hover {
+    color: a.$orange;
+  }
+}
+
+.score {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: a.$titre;
+  font-size: 56px;
+  font-weight: 900;
+  line-height: 1;
+
+  i {
+    font-size: 34px;
+    font-style: normal;
+    opacity: 0.45;
+  }
+
+  .perdant {
+    opacity: 0.45;
+  }
+}
+
+.resume {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 20px;
+  margin-top: 12px;
+  padding-top: 14px;
+  border-top: 1px solid a.$ligne;
+}
+
+.mvp {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  &__portrait {
+    position: relative;
+    width: 42px;
+    height: 42px;
+    overflow: hidden;
+    border-radius: 50%;
+    background: linear-gradient(160deg, #3a2f8f, #17113f);
+    box-shadow: 0 0 0 2px a.$or;
+
+    img {
+      position: absolute;
+      top: -12%;
+      left: -100%;
+      width: 300%;
+      max-width: none;
     }
   }
 
-  .score {
-    font-size: 1.8rem;
-    font-weight: 600;
-    text-align: center;
+  small {
+    display: block;
+    @include a.etiquette(11px);
+    color: a.$or;
   }
 
-  .gagnant {
-    font-weight: 700;
-    color: #ff6a00;
+  b {
+    font-size: 15px;
   }
 }
 
-/* ----- MVP ----- */
-.mvp {
-  text-align: center;
-  margin: 8px 0 16px;
+.meilleurs {
+  font-size: 14px;
+  color: a.$doux;
 
-  .badge {
-    display: inline-block;
-    padding: 2px 10px;
-    margin-right: 6px;
-    border-radius: 12px;
-    background: #ff6a00;
+  b {
     color: #fff;
-    font-size: 0.75rem;
-    font-weight: 700;
-    letter-spacing: 0.5px;
   }
 }
 
-/* ----- Tableaux ----- */
+.bouton-feuille {
+  @include a.bouton-contour;
+  height: 40px;
+
+  mat-icon {
+    transition: transform 0.3s a.$ease;
+  }
+
+  &[aria-expanded="true"] mat-icon {
+    transform: rotate(180deg);
+  }
+}
+
+// ---------- Feuilles de stats ----------
 .equipes {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 24px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px;
+  margin-top: 18px;
 }
 
-.equipe-bloc h3 {
-  margin-bottom: 8px;
-  padding-bottom: 6px;
-  border-bottom: 2px solid #ff6a00;
+.equipe-bloc {
+  min-width: 0;
+
+  h3 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 12px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--accent, a.$orange);
+    font-family: a.$titre;
+    font-size: 20px;
+    font-weight: 800;
+    text-transform: uppercase;
+
+    img {
+      width: 26px;
+      height: 26px;
+      object-fit: contain;
+    }
+  }
 }
 
 .defilement {
@@ -144,52 +274,78 @@ h1 {
 }
 
 table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.9rem;
-
-  th,
-  td {
-    padding: 6px 8px;
-    text-align: center;
-    white-space: nowrap;
-  }
-
-  th {
-    font-size: 0.75rem;
-    color: #666;
-    border-bottom: 1px solid #ddd;
-  }
-
-  tbody tr {
-    border-bottom: 1px solid #eee;
-  }
+  @include a.tableau;
 
   .joueur {
     text-align: left;
+    white-space: nowrap;
   }
 
   .points {
-    font-weight: 700;
+    font-family: a.$titre;
+    font-size: 17px;
+    font-weight: 800;
   }
 
   .ligne-mvp {
-    background: #fff3e6;
+    background: rgba(255, 210, 63, 0.1);
 
     .joueur {
-      font-weight: 600;
+      font-weight: 700;
+      color: a.$or;
     }
   }
 
   .etoile {
-    color: #ff6a00;
     margin-left: 4px;
+    color: a.$or;
   }
 }
 
-/* ----- Petits écrans : les deux équipes passent l'une sous l'autre ----- */
 @media (max-width: 900px) {
   .equipes {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .match {
+    padding: 16px 14px;
+  }
+
+  .tableau-score {
+    gap: 10px;
+  }
+
+  .equipe {
+    flex-direction: column;
+    gap: 6px;
+    text-align: center;
+
+    img {
+      width: 42px;
+      height: 42px;
+    }
+
+    span {
+      font-size: 16px;
+    }
+
+    &--domicile {
+      flex-direction: column-reverse;
+      text-align: center;
+    }
+  }
+
+  .score {
+    font-size: 38px;
+
+    i {
+      font-size: 24px;
+    }
+  }
+
+  .compteur-geant b {
+    font-size: 52px;
   }
 }

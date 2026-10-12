@@ -1,11 +1,15 @@
 
 import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 
 import { Periode } from '../models/periode.model';
 import { JoueurOption } from '../models/joueur-option.model';
 import { StatsPeriodeJoueur } from '../models/stats-periode-joueur.model';
+import { Club } from '../models/joueur.model';
 
 import { StatistiquesService } from '../services/statistiques.service';
+import { ClubService } from '../services/club.service';
+import { POSTES, logoClub, themeClub } from '../club/club-visuels';
 
 @Component({
   selector: 'app-statistiques',
@@ -30,13 +34,26 @@ export class StatistiquesComponent implements OnInit {
   chargement = false;
   erreur: string | null = null;
 
+  // Clubs (logos et couleurs de la fiche), retrouvés par leur nom
+  private clubs: Club[] = [];
+
   constructor(
-    private statistiquesService: StatistiquesService
+    private statistiquesService: StatistiquesService,
+    private clubService: ClubService,
+    private route: ActivatedRoute
   ) {}
 
   ngOnInit(): void {
     this.chargerPeriodes();
     this.chargerJoueurs();
+    this.clubService.getAll().subscribe({
+      next: (clubs) => {
+        this.clubs = clubs;
+      },
+      error: () => {
+        this.clubs = []; // la page fonctionne sans les couleurs des clubs
+      }
+    });
   }
 
   chargerPeriodes(): void {
@@ -58,6 +75,13 @@ export class StatistiquesComponent implements OnInit {
     this.statistiquesService.getJoueurs().subscribe({
       next: (joueurs) => {
         this.joueurs = joueurs;
+
+        // Arrivée depuis la page Joueurs (/statistiques?joueur=12) : joueur présélectionné
+        const joueurId = Number(this.route.snapshot.queryParamMap.get('joueur'));
+        const joueur = joueurs.find(j => j.id === joueurId);
+        if (joueur) {
+          this.selectionnerJoueur(joueur);
+        }
       },
       error: (err) => {
         console.error(
@@ -185,5 +209,37 @@ export class StatistiquesComponent implements OnInit {
     return 'assets/joueurs/' +
       nom.toLowerCase() + '_' +
       prenom.toLowerCase() + '.png';
+  }
+
+  // Ferme la liste quand le focus quitte le champ de recherche et sa liste
+  fermerSiFocusSort(event: FocusEvent): void {
+    const conteneur = event.currentTarget as HTMLElement;
+    if (!conteneur.contains(event.relatedTarget as Node | null)) {
+      this.listeJoueursOuverte = false;
+    }
+  }
+
+  // Total ramené au nombre de matchs joués (null s'il n'y en a aucun)
+  moyenne(total: number): number | null {
+    const matchs = this.statistiques?.matchsJoues ?? 0;
+    return matchs > 0 ? total / matchs : null;
+  }
+
+  libellePoste(code: string): string {
+    return POSTES[code] ?? code;
+  }
+
+  logo(nomClub: string | null): string {
+    const club = this.clubDe(nomClub);
+    return club ? logoClub(club) : 'assets/logo_club/defaut.svg';
+  }
+
+  theme(nomClub: string | null): Record<string, string> {
+    const club = this.clubDe(nomClub);
+    return club ? themeClub(club) : {};
+  }
+
+  private clubDe(nomClub: string | null): Club | undefined {
+    return this.clubs.find(c => c.nom === nomClub);
   }
 }

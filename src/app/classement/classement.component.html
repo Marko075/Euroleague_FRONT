@@ -1,8 +1,13 @@
-<div class="page">
-  <h1>Classement</h1>
+<entete-page
+  surTitre="EuroLeague · Saison en cours"
+  titre="Les classements"
+  accent="par mini-saison"
+  description="Victoires, défaites et différentiel de points, recalculés à partir des matchs joués."
+></entete-page>
 
+<div class="contenu">
   @if (chargement) {
-    <p class="message">Chargement du classement...</p>
+    <p class="message">Chargement du classement…</p>
   }
 
   @if (erreur) {
@@ -10,51 +15,106 @@
   }
 
   @if (!chargement && !erreur) {
-    <div class="grille">
-      @for (classement of classements; track classement.miniSaison) {
-        <mat-card class="carte-classement">
-          <mat-card-header>
-            <mat-card-title>Mini-saison {{ classement.miniSaison }}</mat-card-title>
-            <mat-card-subtitle>Classement après la J{{ classement.journee }}</mat-card-subtitle>
-          </mat-card-header>
+    @if (classementAffiche; as classement) {
+      <div class="onglets" role="tablist" aria-label="Mini-saison">
+        @for (c of classements; track c.miniSaison; let i = $index) {
+          <button
+            type="button"
+            role="tab"
+            class="onglet"
+            [class.onglet--actif]="i === index"
+            [attr.aria-selected]="i === index"
+            (click)="index = i"
+          >
+            Mini-saison {{ c.miniSaison }}
+          </button>
+        }
+      </div>
 
-          <mat-card-content>
-            <table>
-              <thead>
-                <tr>
-                  <th class="rang">#</th>
-                  <th class="equipe">Équipe</th>
-                  <th title="Victoires">V</th>
-                  <th title="Défaites">D</th>
-                  <th title="Paniers marqués - paniers encaissés">+/-</th>
+      <div class="disposition">
+        <section class="tableau-carte">
+          <header>
+            <h2>Mini-saison {{ classement.miniSaison }}</h2>
+            <span class="apres">Classement après la journée {{ classement.journee }}</span>
+          </header>
+
+          <table class="classement">
+            <thead>
+              <tr>
+                <th class="rang">#</th>
+                <th class="equipe">Équipe</th>
+                <th class="joues" title="Matchs joués">J</th>
+                <th title="Victoires">V</th>
+                <th title="Défaites">D</th>
+                <th class="pourcentage" title="Pourcentage de victoires">% V</th>
+                <th title="Paniers marqués - paniers encaissés">+/-</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (ligne of classement.lignes; track ligne.clubId; let i = $index) {
+                <tr
+                  [class.podium-1]="i === 0"
+                  [class.podium-2]="i === 1"
+                  [class.podium-3]="i === 2"
+                  [ngStyle]="theme(ligne.clubId)"
+                >
+                  <td class="rang">
+                    <span [attr.title]="ligne.rang === 'equal' ? 'Égalité parfaite avec l\'équipe précédente' : null">
+                      {{ ligne.rang === "equal" ? "=" : ligne.rang }}
+                    </span>
+                  </td>
+                  <td class="equipe">
+                    <a [routerLink]="['/clubs', ligne.clubId]">
+                      <img [src]="logo(ligne.clubId)" alt="" />
+                      <span>{{ ligne.clubNom }}</span>
+                    </a>
+                  </td>
+                  <td class="joues">{{ ligne.victoires + ligne.defaites }}</td>
+                  <td class="victoires">{{ ligne.victoires }}</td>
+                  <td>{{ ligne.defaites }}</td>
+                  <td class="pourcentage">
+                    {{ pourcentage(ligne) | number: "1.0-0" : "fr" }} %
+                    <span class="jauge" aria-hidden="true"><span [style.width.%]="pourcentage(ligne)"></span></span>
+                  </td>
+                  <td class="diff" [class.positif]="ligne.diff > 0" [class.negatif]="ligne.diff < 0">
+                    {{ formatDiff(ligne.diff) }}
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                @for (ligne of classement.lignes; track ligne.clubId) {
-                  <tr [class.premier]="ligne.rang === '1'">
-                    <td class="rang" [class.egalite]="ligne.rang === 'equal'">{{ ligne.rang }}</td>
-                    <td class="equipe">{{ ligne.clubNom }}</td>
-                    <td class="victoires">{{ ligne.victoires }}</td>
-                    <td>{{ ligne.defaites }}</td>
-                    <td class="diff"
-                        [class.positif]="ligne.diff > 0"
-                        [class.negatif]="ligne.diff < 0">
-                      {{ formatDiff(ligne.diff) }}
-                    </td>
-                  </tr>
-                }
-              </tbody>
-            </table>
-          </mat-card-content>
-        </mat-card>
-      } @empty {
-        <p class="message">Aucun match joué pour le moment : pas encore de classement.</p>
-      }
-    </div>
+              }
+            </tbody>
+          </table>
 
-    <p class="legende">
-      V : victoires · D : défaites · +/- : paniers marqués moins paniers encaissés ·
-      « equal » : égalité parfaite avec l'équipe précédente
-    </p>
+          <p class="legende">
+            J : matchs joués · V : victoires · D : défaites · +/- : paniers marqués moins paniers encaissés · « = » :
+            égalité parfaite avec l'équipe précédente
+          </p>
+        </section>
+
+        @if (classement.lignes[0]; as leader) {
+          <a class="leader" [routerLink]="['/clubs', leader.clubId]" [ngStyle]="theme(leader.clubId)">
+            <span class="leader__titre"><mat-icon>emoji_events</mat-icon>En tête</span>
+            <img class="leader__logo" [src]="logo(leader.clubId)" alt="" />
+            <span class="leader__nom">{{ leader.clubNom }}</span>
+            <div class="leader__bilan">
+              <div>
+                <b>{{ leader.victoires }}</b
+                ><span>Victoires</span>
+              </div>
+              <div>
+                <b>{{ leader.defaites }}</b
+                ><span>Défaites</span>
+              </div>
+              <div>
+                <b>{{ formatDiff(leader.diff) }}</b
+                ><span>+/-</span>
+              </div>
+            </div>
+            <span class="leader__lien">Fiche du club <mat-icon>arrow_forward</mat-icon></span>
+          </a>
+        }
+      </div>
+    } @else {
+      <p class="message">Aucun match joué pour le moment : pas encore de classement.</p>
+    }
   }
 </div>
